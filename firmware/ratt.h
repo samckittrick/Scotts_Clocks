@@ -195,15 +195,6 @@ void drawArrow(uint8_t x, uint8_t y, uint8_t l);
 void setalarmstate(void);
 void beep(uint16_t freq, uint8_t duration);
 void printnumber(uint8_t n, uint8_t inverted);
-uint8_t intersectrect(uint8_t x1, uint8_t y1, uint8_t w1, uint8_t h1,
-					  uint8_t x2, uint8_t y2, uint8_t w2, uint8_t h2);
-
-uint8_t calculate_keepout(float theball_x, float theball_y, float theball_dx, float theball_dy, uint8_t *keepout1, uint8_t *keepout2);
-
-void drawbigdigit(uint8_t x, uint8_t y, uint8_t n, uint8_t inverted);
-void drawmidline(uint8_t inverted);
-
-float random_angle_rads(void);
 
 void init_crand();
 uint8_t dotw(uint8_t mon, uint8_t day, uint8_t yr);
