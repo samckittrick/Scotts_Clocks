@@ -31,6 +31,13 @@ extern volatile uint8_t score_mode;
 
 uint8_t left_score, right_score;
 
+//Used to place the information on the screen
+uint8_t xpos, ypos;
+
+//cstring containing information
+char msg[22];
+
+
 extern volatile uint8_t minute_changed, hour_changed;
 
 uint8_t redraw_time = 0;
@@ -158,6 +165,8 @@ void initanim(void) {
   DEBUG(putstring("\n\rscreen height: "));
   DEBUG(uart_putw_dec(GLCD_YPIXELS));
   DEBUG(putstring_nl(""));
+  xpos = 0;
+  ypos = 0;
 }
 
 //initialise the display
@@ -167,12 +176,29 @@ void initdisplay(uint8_t inverted) {
 
 //advance the animation by one step
 void step(void) {
+   
+   if(minute_changed || hour_changed)
+   {
+      redraw_time = 1;
+      minute_changed = 0;
+      hour_changed = 0;
+      ypos++;
+      if(ypos >= GLCD_TEXT_LINES)
+         ypos = 0;
+         strcpy(msg, "Hello World");
+   }
+   
+   
  
 }
 
 //draw everything to the screen
 void draw(uint8_t inverted) {
-
+   if(redraw_time)
+   {
+      glcdSetAddress(xpos, ypos);
+      glcdPutString(msg);
+   }
 }
 
 // 8 pixels high
