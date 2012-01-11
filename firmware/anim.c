@@ -106,7 +106,7 @@ uint16_t crand(uint8_t type) {
   }
 }
 
-void setscore(void)
+void setscore(void) //Identify what information needs to be shown
 {
   if(score_mode != last_score_mode) {
     redraw_time = 1;
@@ -151,6 +151,7 @@ void setscore(void)
   }
 }
 
+//initialise the animation
 void initanim(void) {
   DEBUG(putstring("screen width: "));
   DEBUG(uart_putw_dec(GLCD_XPIXELS));
@@ -159,16 +160,17 @@ void initanim(void) {
   DEBUG(putstring_nl(""));
 }
 
+//initialise the display
 void initdisplay(uint8_t inverted) {
-
+   glcdFillRectangle(0,0,GLCD_XPIXELS, GLCD_YPIXELS, inverted);
 }
 
-
+//advance the animation by one step
 void step(void) {
  
 }
 
-
+//draw everything to the screen
 void draw(uint8_t inverted) {
 
 }
