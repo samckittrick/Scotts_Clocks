@@ -197,7 +197,7 @@ void draw(uint8_t inverted) {
    if(redraw_time)
    {
       glcdSetAddress(xpos, ypos);
-      glcdPutString(msg);
+      glcdPutStr(msg, inverted);
    }
 }
 
