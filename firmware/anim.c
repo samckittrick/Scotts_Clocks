@@ -29,16 +29,16 @@ extern volatile uint8_t time_format;
 extern volatile uint8_t region;
 extern volatile uint8_t score_mode;
 
-//Used to place the information on the screen
+//A couple variables to print some basic message on the screen as a place holder for a new animation.
 uint8_t xpos, ypos;
-
-//cstring containing information
 char msg[22];
 
 
 extern volatile uint8_t minute_changed, hour_changed;
 
+//Is it time to redraw the screen?
 uint8_t redraw_time = 0;
+
 uint8_t last_score_mode = 0;
 
 uint32_t rval[2]={0,0};
@@ -113,6 +113,10 @@ uint16_t crand(uint8_t type) {
 
 void setscore(void) //Identify what information needs to be shown
 {
+
+  /* The score_mode variable indicates what kind of time should be displayed by the clock. I.e. time, date, year, the time the alarm is set to, etc.
+     The setscore function is called from ratt.c every time the score mode is changed (when the user presses the '+' button on the clock) and allows
+     the animation control to decide how to display that information. */
   if(score_mode != last_score_mode) {
     redraw_time = 1;
     last_score_mode = score_mode;
@@ -133,7 +137,7 @@ void setscore(void) //Identify what information needs to be shown
   }
 }
 
-//initialise the animation
+//initialise the animation. This function is called once before the clock loop begins.
 void initanim(void) {
   DEBUG(putstring("screen width: "));
   DEBUG(uart_putw_dec(GLCD_XPIXELS));
@@ -144,12 +148,13 @@ void initanim(void) {
   ypos = 0;
 }
 
-//initialise the display
+//initialise the display. This function is called at least once, and may be called several times after.
+// It is possible that this function is called every ANIM_TICK miliseconds, but I am not sure yet.
 void initdisplay(uint8_t inverted) {
    glcdFillRectangle(0,0,GLCD_XPIXELS, GLCD_YPIXELS, inverted);
 }
 
-//advance the animation by one step
+//advance the animation by one step. This function is called from ratt.c every ANIM_TICK miliseconds.
 void step(void) {
    
    if(minute_changed || hour_changed)
@@ -168,6 +173,8 @@ void step(void) {
 }
 
 //draw everything to the screen
+// After step() updates everything necessary for the animation, draw() is called to actually draw the frame on the screen.
+//draw() is called every ANIM_TICK miliseconds.
 void draw(uint8_t inverted) {
    if(redraw_time)
    {
