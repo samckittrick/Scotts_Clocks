@@ -59,26 +59,6 @@
 #define DISPLAY_DIGITW 10
 #define DISPLAY_DIGITH 16
 
-#define RIGHTPADDLE_X (SCREEN_W - PADDLE_W - 10)
-#define LEFTPADDLE_X 10
-
-// Paddle size (in pixels) and max speed for AI
-#define PADDLE_H 12
-#define PADDLE_W 3
-#define MAX_PADDLE_SPEED 5
-
-// How big our screen is in pixels
-#define SCREEN_W 128
-#define SCREEN_H 64
-
-// How thick the top and bottom lines are in pixels
-#define BOTBAR_H 2
-#define TOPBAR_H 2
-
-// Specs of the middle line
-#define MIDLINE_W 1
-#define MIDLINE_H (SCREEN_H / 16) // how many 'stipples'
-
 
 /* not used
 #define ALARMBOX_X 20
