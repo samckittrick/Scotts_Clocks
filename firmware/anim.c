@@ -29,8 +29,6 @@ extern volatile uint8_t time_format;
 extern volatile uint8_t region;
 extern volatile uint8_t score_mode;
 
-uint8_t left_score, right_score;
-
 //Used to place the information on the screen
 uint8_t xpos, ypos;
 
@@ -123,37 +121,14 @@ void setscore(void) //Identify what information needs to be shown
   	case SCORE_MODE_DOW:
   	  break;
   	case SCORE_MODE_DATELONG:
-  	  right_score = date_d;
   	  break;
     case SCORE_MODE_TIME:
-      if(alarming && (minute_changed || hour_changed)) {
-      	if(hour_changed) {
-	      left_score = old_h;
-	      right_score = old_m;
-	    } else if (minute_changed) {
-	      right_score = old_m;
-	    }
-      } else {
-        left_score = time_h;
-        right_score = time_m;
-      }
       break;
     case SCORE_MODE_DATE:
-      if((region == REGION_US)||(region == DOW_REGION_US)) {
-        left_score = date_m;
-        right_score = date_d;
-      } else {
-        left_score = date_d;
-        right_score = date_m;
-      }
       break;
     case SCORE_MODE_YEAR:
-      left_score = 20;
-      right_score = date_y;
       break;
     case SCORE_MODE_ALARM:
-      left_score = alarm_h;
-      right_score = alarm_m;
       break;
   }
 }
