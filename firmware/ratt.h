@@ -22,6 +22,13 @@
 // how many seconds we will wait before turning off menus
 #define INACTIVITYTIMEOUT 10 
 
+//Button values
+//Each button turns on one bit in just_pressed
+//By logical anding just pressed with a number like 0x1 we can determine which button was pressed
+//Menu button is 0x1
+//Set button is 0x2
+//+ button is 0x3
+//Multiple buttons can be watched for by setting combinations of bits, i.e. 0x4 which is + and menu button.
 /*************************** DISPLAY PARAMETERS */
 
 // how many pixels to indent the menu items
