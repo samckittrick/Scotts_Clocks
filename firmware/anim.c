@@ -13,6 +13,7 @@
 #include <avr/wdt.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 
 #include "util.h"
@@ -159,28 +160,29 @@ void initdisplay(uint8_t inverted) {
          //print top and bottom halves.
          // the 32-j is to put the image right side up, since the position is measured from the 
          // top left instead of the bottom left.
-         if(colTop & ((uint32_t)1 << 32 - j))
-            glcdSetDot(i/2, j);
-         if(colBot & ((uint32_t)1 << 32 - j))
-            glcdSetDot(i/2, j+31);
+         if(colTop & ((uint32_t)1 << (32 - j)))
+            glcdFillRectangle(i/2, j,1,1,!inverted);
+         if(colBot & ((uint32_t)1 << (32 - j)))
+            glcdFillRectangle(i/2, j+31,1,1,!inverted);
       }
    }
-         
+   
+   //Clear bottom bar
+   glcdFillRectangle(0, GLCD_YPIXELS - 8, GLCD_XPIXELS, 8, inverted);
+   glcdSetAddress(0, GLCD_TEXT_LINES-1);
+   glcdPutStr("ISS", inverted);
+   redraw_time = 1;
 }
 
 //advance the animation by one step. This function is called from ratt.c every ANIM_TICK miliseconds.
 void step(void) {
    
-   /*if(minute_changed || hour_changed)
+   if(minute_changed || hour_changed)
    {
       redraw_time = 1;
       minute_changed = 0;
       hour_changed = 0;
-      ypos++;
-      if(ypos >= GLCD_TEXT_LINES)
-         ypos = 0;
-         strcpy(msg, "Hello World");
-   }*/
+   }
    
    
  
@@ -190,13 +192,20 @@ void step(void) {
 // After step() updates everything necessary for the animation, draw() is called to actually draw the frame on the screen.
 //draw() is called every ANIM_TICK miliseconds.
 void draw(uint8_t inverted) {
-   /*if(redraw_time)
+   if(redraw_time)
    {
       redraw_time = 0;
-      glcdFillRectangle(0,0,GLCD_XPIXELS,GLCD_YPIXELS, inverted);
-      glcdSetAddress(xpos, ypos);
-      glcdPutStr(msg, inverted);
-   }*/
+      glcdFillRectangle(20, GLCD_YPIXELS-8, GLCD_XPIXELS-20, 8, inverted);
+      glcdSetAddress(8, LINE8);
+      char buffer[2];
+      char time[5];
+      sprintf(buffer, "%02d", time_h);
+      strcat(time, buffer);
+      strcat(time, ":");
+      sprintf(buffer, "%02d", time_m);
+      strcat(time, buffer);
+      glcdPutStr("12:00", inverted);
+   }
 }
 
 // 8 pixels high
