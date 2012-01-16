@@ -35,6 +35,7 @@ volatile uint8_t minute_changed = 0, hour_changed = 0;
 volatile uint8_t score_mode_timeout = 0;
 volatile uint8_t score_mode = SCORE_MODE_TIME;
 volatile uint8_t last_score_mode;
+volatile uint8_t baseInverted = 0; //This is for a changeable screen inversion.
 
 // These store the current button states for all 3 buttons. We can 
 // then query whether the buttons are pressed and released or pressed
@@ -91,7 +92,7 @@ void init_eeprom(void) {	//Set eeprom to a default state.
 }
 
 int main(void) {
-  uint8_t inverted = 0;
+  uint8_t inverted = baseInverted;
   uint8_t mcustate;
   uint8_t display_date = 0;
 
@@ -155,7 +156,7 @@ int main(void) {
   glcdClearScreen();
 
   initanim();
-  initdisplay(0);
+  initdisplay(inverted);
 
   while (1) {
     animticker = ANIMTICK_MS;
@@ -278,24 +279,24 @@ int main(void) {
       default:
 	displaymode = SHOW_TIME;
 	glcdClearScreen();
-	initdisplay(0);
+	initdisplay(inverted);
       }
 
       if (displaymode == SHOW_TIME) {
 	glcdClearScreen();
-	initdisplay(0);
+	initdisplay(inverted);
       }
     }
 
     step();
     if (displaymode == SHOW_TIME) {
-      if (! inverted && alarming && (time_s & 0x1)) {
-	inverted = 1;
+      if ((inverted == baseInverted) && alarming && (time_s & 0x1)) {
+	inverted = !baseInverted;
 	initdisplay(inverted);
       }
-      else if ((inverted && ! alarming) || (alarming && inverted && !(time_s & 0x1))) {
-	inverted = 0;
-	initdisplay(0);
+      else if (((inverted == !baseInverted) && ! alarming) || (alarming && (inverted == !baseInverted) && !(time_s & 0x1))) {
+	inverted = baseInverted;
+	initdisplay(inverted);
       } else {
 	PORTB |= _BV(5);
 	draw(inverted);

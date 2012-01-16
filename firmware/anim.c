@@ -28,6 +28,7 @@ extern volatile uint8_t alarming, alarm_h, alarm_m;
 extern volatile uint8_t time_format;
 extern volatile uint8_t region;
 extern volatile uint8_t score_mode;
+extern volatile uint8_t baseInverted;
 
 //A couple variables to print some basic message on the screen as a place holder for a new animation.
 uint8_t xpos, ypos;
@@ -152,6 +153,8 @@ void initanim(void) {
 // It is possible that this function is called every ANIM_TICK miliseconds, but I am not sure yet.
 void initdisplay(uint8_t inverted) {
    glcdFillRectangle(0,0,GLCD_XPIXELS, GLCD_YPIXELS, inverted);
+   glcdSetAddress(xpos, ypos);
+   glcdPutStr(msg, inverted);
 }
 
 //advance the animation by one step. This function is called from ratt.c every ANIM_TICK miliseconds.
@@ -166,6 +169,16 @@ void step(void) {
       if(ypos >= GLCD_TEXT_LINES)
          ypos = 0;
          strcpy(msg, "Hello World");
+      
+      if(time_m & 0x1)
+      {
+         baseInverted = 1;
+      }
+      else
+      {
+         baseInverted = 0;
+      }
+      
    }
    
    
@@ -178,6 +191,8 @@ void step(void) {
 void draw(uint8_t inverted) {
    if(redraw_time)
    {
+      redraw_time = 0;
+      glcdFillRectangle(0,0,GLCD_XPIXELS, GLCD_YPIXELS, inverted);
       glcdSetAddress(xpos, ypos);
       glcdPutStr(msg, inverted);
    }
