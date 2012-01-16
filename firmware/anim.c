@@ -20,6 +20,7 @@
 #include "ks0108.h"
 #include "glcd.h"
 #include "font5x7.h"
+#include "WorldMap.c"
 
 extern volatile uint8_t time_s, time_m, time_h;
 extern volatile uint8_t old_m, old_h;
@@ -28,10 +29,6 @@ extern volatile uint8_t alarming, alarm_h, alarm_m;
 extern volatile uint8_t time_format;
 extern volatile uint8_t region;
 extern volatile uint8_t score_mode;
-
-//A couple variables to print some basic message on the screen as a place holder for a new animation.
-uint8_t xpos, ypos;
-char msg[22];
 
 
 extern volatile uint8_t minute_changed, hour_changed;
@@ -144,20 +141,37 @@ void initanim(void) {
   DEBUG(putstring("\n\rscreen height: "));
   DEBUG(uart_putw_dec(GLCD_YPIXELS));
   DEBUG(putstring_nl(""));
-  xpos = 0;
-  ypos = 0;
 }
 
 //initialise the display. This function is called at least once, and may be called several times after.
 // It is possible that this function is called every ANIM_TICK miliseconds, but I am not sure yet.
 void initdisplay(uint8_t inverted) {
+   //clear the screen
    glcdFillRectangle(0,0,GLCD_XPIXELS, GLCD_YPIXELS, inverted);
+   //loop through the worldMap array
+   for(uint16_t i = 0; i < 256; i +=2)
+   {
+      //extract top and bottom halves of image
+      uint32_t colTop = pgm_read_dword_near(worldMap+i);
+      uint32_t colBot = pgm_read_dword_near(worldMap+i+1);
+      for(uint8_t j = 0; j < 32; j++)
+      {
+         //print top and bottom halves.
+         // the 32-j is to put the image right side up, since the position is measured from the 
+         // top left instead of the bottom left.
+         if(colTop & ((uint32_t)1 << 32 - j))
+            glcdSetDot(i/2, j);
+         if(colBot & ((uint32_t)1 << 32 - j))
+            glcdSetDot(i/2, j+31);
+      }
+   }
+         
 }
 
 //advance the animation by one step. This function is called from ratt.c every ANIM_TICK miliseconds.
 void step(void) {
    
-   if(minute_changed || hour_changed)
+   /*if(minute_changed || hour_changed)
    {
       redraw_time = 1;
       minute_changed = 0;
@@ -166,7 +180,7 @@ void step(void) {
       if(ypos >= GLCD_TEXT_LINES)
          ypos = 0;
          strcpy(msg, "Hello World");
-   }
+   }*/
    
    
  
@@ -176,11 +190,13 @@ void step(void) {
 // After step() updates everything necessary for the animation, draw() is called to actually draw the frame on the screen.
 //draw() is called every ANIM_TICK miliseconds.
 void draw(uint8_t inverted) {
-   if(redraw_time)
+   /*if(redraw_time)
    {
+      redraw_time = 0;
+      glcdFillRectangle(0,0,GLCD_XPIXELS,GLCD_YPIXELS, inverted);
       glcdSetAddress(xpos, ypos);
       glcdPutStr(msg, inverted);
-   }
+   }*/
 }
 
 // 8 pixels high
