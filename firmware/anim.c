@@ -156,6 +156,11 @@ void initanim(void) {
   else
   {
      hour12 = time_h;
+     //special case
+     if(time_h == 0)
+     {
+         hour12 = 12;
+     }
      timePM = 0;
   }
   
