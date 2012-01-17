@@ -278,8 +278,8 @@ int main(void) {
 #endif
       default:
 	displaymode = SHOW_TIME;
-	glcdClearScreen();
-	initdisplay(inverted);
+	//glcdClearScreen();
+	//initdisplay(inverted);
       }
 
       if (displaymode == SHOW_TIME) {
