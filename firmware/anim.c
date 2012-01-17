@@ -38,6 +38,20 @@ uint8_t timePM;
 uint8_t showColon;
 uint8_t needPopUp, havePopUp;
 char dateString[11];
+uint8_t dayotw, dayotw_old;
+char dayText[10];
+
+//Day of the week strings
+char monday[] PROGMEM = "Monday";
+char tuesday[] PROGMEM = "Tuesday";
+char wednesday[] PROGMEM = "Wednesday";
+char thursday[] PROGMEM = "Thursday";
+char friday[] PROGMEM = "Friday";
+char saturday[] PROGMEM = "Saturday";
+char sunday[] PROGMEM = "Sunday";
+PGM_P dayTable[] PROGMEM = { monday, tuesday, wednesday, thursday, friday, saturday, sunday };
+uint8_t dayLengthTable[] = { 6, 7, 9, 8, 6, 8, 6};
+
 //Is it time to redraw the screen?
 uint8_t redraw_time = 0;
 
@@ -165,6 +179,9 @@ void initanim(void) {
      timePM = 0;
   }
   
+  dayotw = dayotw_old = dotw(date_m, date_d, date_y);
+  strcpy_P(dayText, (PGM_P)pgm_read_word(&(dayTable[dayotw-1])));
+  
   needPopUp = havePopUp = 0;
 }
 
@@ -209,6 +226,12 @@ void step(void) {
       }
    }
    
+   dayotw = dotw(date_m, date_d, date_y);
+   if(dayotw != dayotw_old)
+   {
+      strcpy_P(dayText, (PGM_P)pgm_read_word(&(dayTable[dayotw-1])));
+   }
+   
    if(needPopUp && !havePopUp)
    {
       if(region == REGION_US)
@@ -245,8 +268,11 @@ void draw(uint8_t inverted) {
       glcdRectangle(16,8,96,40);
       havePopUp = 1;
       
-      glcdSetAddress(48, 2);
-      glcdPutStr("Monday", inverted);
+      //the below formula is (displayAreaWidth - (wordLength*characterWidth))/2
+      // it centers the day of the week in the box
+      uint8_t offset = (96 - (dayLengthTable[dayotw - 1]*6))>>1;
+      glcdSetAddress(18 + offset, 2);
+      glcdPutStr(dayText, inverted);
       glcdSetAddress(36, 4);
       glcdPutStr(dateString, inverted);
    }
