@@ -36,6 +36,7 @@ extern volatile uint8_t minute_changed, hour_changed;
 uint8_t hour12;
 uint8_t timePM;
 uint8_t showColon;
+uint8_t needPopUp, havePopUp;
 //Is it time to redraw the screen?
 uint8_t redraw_time = 0;
 
@@ -127,8 +128,10 @@ void setscore(void) //Identify what information needs to be shown
   	case SCORE_MODE_DATELONG:
   	  break;
     case SCORE_MODE_TIME:
+      needPopUp = 0;
       break;
     case SCORE_MODE_DATE:
+      needPopUp = 1;
       break;
     case SCORE_MODE_YEAR:
       break;
@@ -147,14 +150,16 @@ void initanim(void) {
   
   if(time_h > 12)
   {
-      hour12 = time_h-12;
-      timePM = 1;
-   }
-   else
-   {
-      hour12 = time_h;
-      timePM = 0;
-   }
+     hour12 = time_h-12;
+     timePM = 1;
+  }
+  else
+  {
+     hour12 = time_h;
+     timePM = 0;
+  }
+  
+  needPopUp = havePopUp = 0;
 }
 
 //initialise the display. This function is called at least once, and may be called several times after.
@@ -162,23 +167,7 @@ void initanim(void) {
 void initdisplay(uint8_t inverted) {
    //clear the screen
    glcdFillRectangle(0,0,GLCD_XPIXELS, GLCD_YPIXELS, inverted);
-   //loop through the worldMap array
-   for(uint16_t i = 0; i < 256; i +=2)
-   {
-      //extract top and bottom halves of image
-      uint32_t colTop = pgm_read_dword_near(worldMap+i);
-      uint32_t colBot = pgm_read_dword_near(worldMap+i+1);
-      for(uint8_t j = 0; j < 32; j++)
-      {
-         //print top and bottom halves.
-         // the 32-j is to put the image right side up, since the position is measured from the 
-         // top left instead of the bottom left.
-         if(colTop & ((uint32_t)1 << (32 - j)))
-            glcdFillRectangle(i/2, j,1,1,!inverted);
-         if(colBot & ((uint32_t)1 << (32 - j)))
-            glcdFillRectangle(i/2, j+31,1,1,!inverted);
-      }
-   }
+   drawMap(inverted);
    
    //Clear bottom bar
    glcdFillRectangle(0, GLCD_YPIXELS - 10, GLCD_XPIXELS, 10, inverted);
@@ -186,7 +175,6 @@ void initdisplay(uint8_t inverted) {
    glcdSetAddress(1, GLCD_TEXT_LINES-1);
    glcdPutStr("ISS", inverted);
    redraw_time = 1;
-   draw(inverted);
 }
 
 //advance the animation by one step. This function is called from ratt.c every ANIM_TICK miliseconds.
@@ -210,6 +198,7 @@ void step(void) {
       }
    }
    
+   //Flasher for the Colon in the time
    if(time_s & 0x1)
    {
       showColon = 1;
@@ -224,6 +213,31 @@ void step(void) {
 // After step() updates everything necessary for the animation, draw() is called to actually draw the frame on the screen.
 //draw() is called every ANIM_TICK miliseconds.
 void draw(uint8_t inverted) {
+   
+   //if we need to show the date
+   if(needPopUp && !havePopUp)
+   {
+      glcdFillRectangle(14, 6, 100, 44, inverted);
+      glcdRectangle(14,6,100,44);
+      glcdRectangle(16,8,96,40);
+      havePopUp = 1;
+      
+      glcdSetAddress(48, 2);
+      glcdPutStr("Monday", inverted);
+      glcdSetAddress(36, 4);
+      glcdPutStr("01/16/2021", inverted);
+   }
+   
+   //if we were showing the date and it times out
+   //refresh the screen
+   if(!needPopUp && havePopUp)
+   {
+      drawMap(inverted);
+      havePopUp = 0;
+      redraw_time = 1;
+   }
+   
+   
    if(redraw_time)
    {
       redraw_time = 0;
@@ -244,7 +258,7 @@ void draw(uint8_t inverted) {
       }
    }
    
-   glcdSetAddress(GLCD_XPIXELS - 24, GLCD_TEXT_LINES - 1); //Place Colon
+   glcdSetAddress(GLCD_XPIXELS - 25, GLCD_TEXT_LINES - 1); //Place Colon
    if(showColon)
    {
       glcdWriteChar(58, inverted);
@@ -253,48 +267,31 @@ void draw(uint8_t inverted) {
    {
       glcdWriteChar(32, inverted);
    }
+   
 }
 
-// 8 pixels high
-static unsigned char __attribute__ ((progmem)) BigFont[] = {
-	0xFF, 0x81, 0x81, 0xFF,// 0
-	0x00, 0x00, 0x00, 0xFF,// 1
-	0x9F, 0x91, 0x91, 0xF1,// 2
-	0x91, 0x91, 0x91, 0xFF,// 3
-	0xF0, 0x10, 0x10, 0xFF,// 4
-	0xF1, 0x91, 0x91, 0x9F,// 5
-	0xFF, 0x91, 0x91, 0x9F,// 6
-	0x80, 0x80, 0x80, 0xFF,// 7
-	0xFF, 0x91, 0x91, 0xFF,// 8 
-	0xF1, 0x91, 0x91, 0xFF,// 9
-	0x00, 0x00, 0x00, 0x00,// SPACE
-};
-
-static unsigned char __attribute__ ((progmem)) MonthText[] = {
-	0,0,0,
-	'J','A','N',
-	'F','E','B',
-	'M','A','R',
-	'A','P','R',
-	'M','A','Y',
-	'J','U','N',
-	'J','U','L',
-	'A','U','G',
-	'S','E','P',
-	'O','C','T',
-	'N','O','V',
-	'D','E','C',
-};
-
-static unsigned char __attribute__ ((progmem)) DOWText[] = {
-	'S','U','N',
-	'M','O','N',
-	'T','U','E',
-	'W','E','D',
-	'T','H','U',
-	'F','R','I',
-	'S','A','T',
-};
+//Draw the map on the screen
+void drawMap(uint8_t inverted)
+{
+   glcdFillRectangle(0,0, 128, 54, inverted);
+   //loop through the worldMap array
+   for(uint16_t i = 0; i < 256; i +=2)
+   {
+      //extract top and bottom halves of image
+      uint32_t colTop = pgm_read_dword_near(worldMap+i);
+      uint32_t colBot = pgm_read_dword_near(worldMap+i+1);
+      for(uint8_t j = 0; j < 32; j++)
+      {
+         //print top and bottom halves.
+         // the 32-j is to put the image right side up, since the position is measured from the 
+         // top left instead of the bottom left.
+         if(colTop & ((uint32_t)1 << (32 - j)))
+            glcdFillRectangle(i>>1, j,1,1,!inverted);
+         if((colBot & ((uint32_t)1 << (32 - j))) && (32+j <= 54))
+            glcdFillRectangle(i>>1, j+31,1,1,!inverted);
+      }
+   }
+}
 
 uint8_t dotw(uint8_t mon, uint8_t day, uint8_t yr)
 {
