@@ -242,7 +242,7 @@ int main(void) {
 	  	display_date = 1;
 	  	score_mode = SCORE_MODE_DOW;
 	  }
-	  score_mode_timeout = 3;
+	  score_mode_timeout = 6;
 	  setscore();
 	}
 
