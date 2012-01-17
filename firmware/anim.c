@@ -30,6 +30,7 @@ extern volatile uint8_t alarming, alarm_h, alarm_m;
 extern volatile uint8_t time_format;
 extern volatile uint8_t region;
 extern volatile uint8_t score_mode;
+extern volatile uint8_t baseInverted;
 
 
 extern volatile uint8_t minute_changed, hour_changed;
