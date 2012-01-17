@@ -37,6 +37,7 @@ uint8_t hour12;
 uint8_t timePM;
 uint8_t showColon;
 uint8_t needPopUp, havePopUp;
+char dateString[11];
 //Is it time to redraw the screen?
 uint8_t redraw_time = 0;
 
@@ -208,6 +209,18 @@ void step(void) {
       }
    }
    
+   if(needPopUp && !havePopUp)
+   {
+      if(region == REGION_US)
+      { 
+         sprintf(dateString, "%02d/%02d/20%2d", date_m, date_d, date_y);
+      }
+      else
+      {
+         sprintf(dateString, "%02d/%02d/20%2d", date_d, date_m, date_y);
+      }
+   }
+   
    //Flasher for the Colon in the time
    if(time_s & 0x1)
    {
@@ -235,7 +248,7 @@ void draw(uint8_t inverted) {
       glcdSetAddress(48, 2);
       glcdPutStr("Monday", inverted);
       glcdSetAddress(36, 4);
-      glcdPutStr("01/16/2021", inverted);
+      glcdPutStr(dateString, inverted);
    }
    
    //if we were showing the date and it times out
