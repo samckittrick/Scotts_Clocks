@@ -31,10 +31,11 @@ extern volatile uint8_t time_format;
 extern volatile uint8_t region;
 extern volatile uint8_t score_mode;
 extern volatile uint8_t baseInverted;
-
-
 extern volatile uint8_t minute_changed, hour_changed;
 
+uint8_t hour12;
+uint8_t timePM;
+uint8_t showColon;
 //Is it time to redraw the screen?
 uint8_t redraw_time = 0;
 
@@ -143,6 +144,17 @@ void initanim(void) {
   DEBUG(putstring("\n\rscreen height: "));
   DEBUG(uart_putw_dec(GLCD_YPIXELS));
   DEBUG(putstring_nl(""));
+  
+  if(time_h > 12)
+  {
+      hour12 = time_h-12;
+      timePM = 1;
+   }
+   else
+   {
+      hour12 = time_h;
+      timePM = 0;
+   }
 }
 
 //initialise the display. This function is called at least once, and may be called several times after.
@@ -169,10 +181,12 @@ void initdisplay(uint8_t inverted) {
    }
    
    //Clear bottom bar
-   glcdFillRectangle(0, GLCD_YPIXELS - 8, GLCD_XPIXELS, 8, inverted);
-   glcdSetAddress(0, GLCD_TEXT_LINES-1);
+   glcdFillRectangle(0, GLCD_YPIXELS - 10, GLCD_XPIXELS, 10, inverted);
+   glcdFillRectangle(0, GLCD_YPIXELS-10, GLCD_XPIXELS, 1, !inverted);
+   glcdSetAddress(1, GLCD_TEXT_LINES-1);
    glcdPutStr("ISS", inverted);
    redraw_time = 1;
+   draw(inverted);
 }
 
 //advance the animation by one step. This function is called from ratt.c every ANIM_TICK miliseconds.
@@ -183,10 +197,27 @@ void step(void) {
       redraw_time = 1;
       minute_changed = 0;
       hour_changed = 0;
+      
+      if(time_h > 12)
+      {
+         hour12 = time_h-12;
+         timePM = 1;
+      }
+      else
+      {
+         hour12 = time_h;
+         timePM = 0;
+      }
    }
    
-   
- 
+   if(time_s & 0x1)
+   {
+      showColon = 1;
+   }
+   else
+   {
+      showColon = 0;
+   } 
 }
 
 //draw everything to the screen
@@ -197,15 +228,30 @@ void draw(uint8_t inverted) {
    {
       redraw_time = 0;
       glcdFillRectangle(20, GLCD_YPIXELS-8, GLCD_XPIXELS-20, 8, inverted);
-      glcdSetAddress(8, LINE8);
-      char buffer[2];
-      char time[5];
-      sprintf(buffer, "%02d", time_h);
-      strcat(time, buffer);
-      strcat(time, ":");
-      sprintf(buffer, "%02d", time_m);
-      strcat(time, buffer);
-      glcdPutStr("12:00", inverted);
+      glcdSetAddress(GLCD_XPIXELS - 37, GLCD_TEXT_LINES-1);
+      glcdWriteChar(48 + hour12/10, inverted);
+      glcdWriteChar(48 + hour12%10, inverted);
+      glcdWriteChar(58, inverted);
+      glcdWriteChar(48 + time_m/10, inverted);
+      glcdWriteChar(48 + time_m%10, inverted);
+      if(timePM)
+      {
+         glcdWriteChar(80, inverted);
+      }
+      else
+      {
+         glcdWriteChar(65, inverted);
+      }
+   }
+   
+   glcdSetAddress(GLCD_XPIXELS - 24, GLCD_TEXT_LINES - 1); //Place Colon
+   if(showColon)
+   {
+      glcdWriteChar(58, inverted);
+   }
+   else
+   {
+      glcdWriteChar(32, inverted);
    }
 }
 
