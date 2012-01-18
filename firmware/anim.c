@@ -34,6 +34,7 @@ extern volatile uint8_t baseInverted;
 extern volatile uint8_t minute_changed, hour_changed;
 
 uint8_t hour12;
+uint8_t lastScoreMode;
 uint8_t timePM;
 uint8_t showColon;
 uint8_t needPopUp, havePopUp;
@@ -151,6 +152,7 @@ void setscore(void) //Identify what information needs to be shown
     case SCORE_MODE_YEAR:
       break;
     case SCORE_MODE_ALARM:
+      needPopUp = 1;
       break;
   }
 }
@@ -163,26 +165,35 @@ void initanim(void) {
   DEBUG(uart_putw_dec(GLCD_YPIXELS));
   DEBUG(putstring_nl(""));
   
-  if(time_h > 12)
+  if(time_format == TIME_12H)
   {
-     hour12 = time_h-12;
-     timePM = 1;
+     if((time_h > 12))
+     {
+        hour12 = time_h-12;
+        timePM = 1;
+     }
+     else
+     {
+        hour12 = time_h;
+        //special case
+        if(time_h == 0)
+        {
+            hour12 = 12;
+        }
+        timePM = 0;
+     }
   }
   else
   {
-     hour12 = time_h;
-     //special case
-     if(time_h == 0)
-     {
-         hour12 = 12;
-     }
-     timePM = 0;
+      hour12 = time_h;
   }
   
   dayotw = dayotw_old = dotw(date_m, date_d, date_y);
   strcpy_P(dayText, (PGM_P)pgm_read_word(&(dayTable[dayotw-1])));
   
   needPopUp = havePopUp = 0;
+  
+  lastScoreMode = score_mode;
 }
 
 //initialise the display. This function is called at least once, and may be called several times after.
@@ -208,21 +219,27 @@ void step(void) {
       redraw_time = 1;
       minute_changed = 0;
       hour_changed = 0;
-      
-      if(time_h > 12)
+      if(time_format == TIME_12H)
       {
-         hour12 = time_h-12;
-         timePM = 1;
+         if(time_h > 12)
+         {
+            hour12 = time_h-12;
+            timePM = 1;
+         }
+         else
+         {
+            hour12 = time_h;
+            //special case
+            if(time_h == 0)
+            {
+               hour12 = 12;
+            }
+            timePM = 0;
+         }
       }
       else
-      {
+      { 
          hour12 = time_h;
-         //special case
-         if(time_h == 0)
-         {
-            hour12 = 12;
-         }
-         timePM = 0;
       }
    }
    
@@ -268,13 +285,69 @@ void draw(uint8_t inverted) {
       glcdRectangle(16,8,96,40);
       havePopUp = 1;
       
-      //the below formula is (displayAreaWidth - (wordLength*characterWidth))/2
-      // it centers the day of the week in the box
-      uint8_t offset = (96 - (dayLengthTable[dayotw - 1]*6))>>1;
-      glcdSetAddress(18 + offset, 2);
-      glcdPutStr(dayText, inverted);
-      glcdSetAddress(36, 4);
-      glcdPutStr(dateString, inverted);
+      if(score_mode == SCORE_MODE_DATE)
+      {
+         //the below formula is (displayAreaWidth - (wordLength*characterWidth))/2
+         // it centers the day of the week in the box
+         uint8_t offset = (96 - (dayLengthTable[dayotw - 1]*6))>>1;
+         glcdSetAddress(18 + offset, 2);
+         glcdPutStr(dayText, inverted);
+         glcdSetAddress(36, 4);
+         glcdPutStr(dateString, inverted);
+      }
+   }
+   
+   //if we have the popup and still need it
+   if(needPopUp && havePopUp)
+   {
+      //if we are showing the alarm
+      if(score_mode == SCORE_MODE_ALARM)
+      {
+         //flash the word alarm
+         if(time_s & 0x1)
+         {
+            glcdSetAddress(51, 2);
+            glcdPutStr("     ", inverted);
+         }
+         else
+         {
+            glcdSetAddress(51, 2);
+            glcdPutStr("Alarm", inverted);
+         }
+         
+         //print alarm time
+         glcdSetAddress(49, 4);
+         uint8_t alarmHDisplay = alarm_h;
+         uint8_t alarmPM = 0;
+         if((time_format == TIME_12H) && (alarm_h > 12))
+         {
+            alarmHDisplay = alarm_h -12;
+            alarmPM = 1;
+         }
+         if((alarmHDisplay/10) == 0)
+         {
+            glcdWriteChar(32, inverted);
+         }
+         else
+         {
+            glcdWriteChar(48 + alarmHDisplay/10, inverted);
+         }
+         glcdWriteChar(48 + alarmHDisplay%10, inverted);
+         glcdWriteChar(58, inverted);
+         glcdWriteChar(48 + alarm_m/10, inverted);
+         glcdWriteChar(48 + alarm_m%10, inverted);
+         if(time_format == TIME_12H)
+         {
+            if(alarmPM)
+            {
+               glcdWriteChar(80, inverted);
+            }
+            else
+            {
+               glcdWriteChar(65, inverted);
+            }
+         }
+      }
    }
    
    //if we were showing the date and it times out
@@ -292,18 +365,28 @@ void draw(uint8_t inverted) {
       redraw_time = 0;
       glcdFillRectangle(20, GLCD_YPIXELS-8, GLCD_XPIXELS-20, 8, inverted);
       glcdSetAddress(GLCD_XPIXELS - 37, GLCD_TEXT_LINES-1);
-      glcdWriteChar(48 + hour12/10, inverted);
+      if((hour12/10) == 0)
+      {
+         glcdWriteChar(32, inverted);
+      }
+      else
+      {
+         glcdWriteChar(48 + hour12/10, inverted);
+      }
       glcdWriteChar(48 + hour12%10, inverted);
       glcdWriteChar(58, inverted);
       glcdWriteChar(48 + time_m/10, inverted);
       glcdWriteChar(48 + time_m%10, inverted);
-      if(timePM)
+      if(time_format == TIME_12H)
       {
-         glcdWriteChar(80, inverted);
-      }
-      else
-      {
-         glcdWriteChar(65, inverted);
+         if(timePM)
+         {
+            glcdWriteChar(80, inverted);
+         }
+         else
+         {
+            glcdWriteChar(65, inverted);
+         }
       }
    }
    
