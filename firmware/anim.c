@@ -26,7 +26,7 @@
 extern volatile uint8_t time_s, time_m, time_h;
 extern volatile uint8_t old_m, old_h;
 extern volatile uint8_t date_m, date_d, date_y;
-extern volatile uint8_t alarming, alarm_h, alarm_m;
+extern volatile uint8_t alarming, alarm_h, alarm_m, alarm_on;
 extern volatile uint8_t time_format;
 extern volatile uint8_t region;
 extern volatile uint8_t score_mode;
@@ -52,6 +52,9 @@ char saturday[] PROGMEM = "Saturday";
 char sunday[] PROGMEM = "Sunday";
 PGM_P dayTable[] PROGMEM = { monday, tuesday, wednesday, thursday, friday, saturday, sunday };
 uint8_t dayLengthTable[] = { 6, 7, 9, 8, 6, 8, 6};
+
+//alarm icon image
+uint8_t alarmIcon[7] = { 0x00, 0x3A, 0x44, 0xD4, 0x44, 0x3A, 0x00 }; 
 
 //Is it time to redraw the screen?
 uint8_t redraw_time = 0;
@@ -366,7 +369,7 @@ void draw(uint8_t inverted) {
    if(redraw_time)
    {
       redraw_time = 0;
-      glcdFillRectangle(20, GLCD_YPIXELS-8, GLCD_XPIXELS-20, 8, inverted);
+      glcdFillRectangle(19, GLCD_YPIXELS-9, GLCD_XPIXELS-19, 9, inverted);
       glcdSetAddress(GLCD_XPIXELS - 37, GLCD_TEXT_LINES-1);
       if((hour12/10) == 0)
       {
@@ -390,6 +393,15 @@ void draw(uint8_t inverted) {
          {
             glcdWriteChar(65, inverted);
          }
+      }
+      
+      //draw alarm icon
+      if(alarm_on)
+      {
+         for(uint8_t i = 0; i < 7; i++)
+            for(uint8_t j = 0; j < 7; j++)
+               if(alarmIcon[i] & ((uint8_t)1 << (7-j)))
+                  glcdFillRectangle(43 + i, (GLCD_YPIXELS - 8) + j, 1, 1, !inverted);
       }
    }
    
@@ -441,4 +453,4 @@ uint8_t dotw(uint8_t mon, uint8_t day, uint8_t yr)
       year -= 1;
     }
     return (day + (2 * month) + (6 * (month+1)/10) + year + (year/4) - (year/100) + (year/400) + 1) % 7;
-}     
+}    
