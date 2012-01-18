@@ -34,7 +34,7 @@ extern volatile uint8_t baseInverted;
 extern volatile uint8_t minute_changed, hour_changed;
 
 uint8_t hour12;
-uint8_t lastScoreMode;
+uint8_t lastTimeFormat;
 uint8_t timePM;
 uint8_t showColon;
 uint8_t needPopUp, havePopUp;
@@ -193,7 +193,7 @@ void initanim(void) {
   
   needPopUp = havePopUp = 0;
   
-  lastScoreMode = score_mode;
+  lastTimeFormat = time_format;
 }
 
 //initialise the display. This function is called at least once, and may be called several times after.
@@ -214,7 +214,8 @@ void initdisplay(uint8_t inverted) {
 //advance the animation by one step. This function is called from ratt.c every ANIM_TICK miliseconds.
 void step(void) {
    
-   if(minute_changed || hour_changed)
+   //we might need to redraw the time
+   if((minute_changed || hour_changed) || (time_format != lastTimeFormat))
    {
       redraw_time = 1;
       minute_changed = 0;
@@ -241,6 +242,8 @@ void step(void) {
       { 
          hour12 = time_h;
       }
+      
+      lastTimeFormat = time_format;
    }
    
    dayotw = dotw(date_m, date_d, date_y);
