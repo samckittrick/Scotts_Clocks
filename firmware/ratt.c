@@ -356,7 +356,7 @@ void setalarmstate(void) {
       // reset snoozing
       snoozetimer = 0;
 	  score_mode = SCORE_MODE_ALARM;
-	  score_mode_timeout = 3;
+	  score_mode_timeout = 6;
 	  setscore();
       DEBUGP("alarm on");
     }   
