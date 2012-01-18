@@ -317,3 +317,9 @@ PROGMEM prog_uint32_t worldMap[]  = {
 0x00000000,
 0x00000000
 };
+
+/* New Map
+PROGMEM prog_uint32_t worldMap[] {
+
+
+*/
