@@ -55,6 +55,7 @@ uint8_t dayLengthTable[] = { 6, 7, 9, 8, 6, 8, 6};
 
 //alarm icon image
 uint8_t alarmIcon[7] = { 0x00, 0x3A, 0x44, 0xD4, 0x44, 0x3A, 0x00 }; 
+uint8_t haveAlarmIcon;
 
 //Is it time to redraw the screen?
 uint8_t redraw_time = 0;
@@ -195,6 +196,7 @@ void initanim(void) {
   strcpy_P(dayText, (PGM_P)pgm_read_word(&(dayTable[dayotw-1])));
   
   needPopUp = havePopUp = 0;
+  haveAlarmIcon = alarm_on;
   
   lastTimeFormat = time_format;
 }
@@ -247,6 +249,13 @@ void step(void) {
       }
       
       lastTimeFormat = time_format;
+   }
+   
+   //if the alarm status has changed
+   if(haveAlarmIcon != alarm_on)
+   {
+      redraw_time = 1;
+      haveAlarmIcon = alarm_on;
    }
    
    dayotw = dotw(date_m, date_d, date_y);
@@ -330,7 +339,7 @@ void draw(uint8_t inverted) {
             alarmHDisplay = alarm_h -12;
             alarmPM = 1;
          }
-         if((alarmHDisplay/10) == 0)
+         if(((alarmHDisplay/10) == 0) && (time_format == TIME_12H))
          {
             glcdWriteChar(32, inverted);
          }
