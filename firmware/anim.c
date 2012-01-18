@@ -35,9 +35,11 @@ extern volatile uint8_t minute_changed, hour_changed;
 
 uint8_t hour12;
 uint8_t lastTimeFormat;
+uint8_t last_score_mode;
 uint8_t timePM;
 uint8_t showColon;
 uint8_t needPopUp, havePopUp;
+//char PopUp1[11], PopUp2[10], PopUp3[11];
 char dateString[11];
 uint8_t dayotw, dayotw_old;
 char dayText[10];
@@ -51,7 +53,21 @@ char friday[] PROGMEM = "Friday";
 char saturday[] PROGMEM = "Saturday";
 char sunday[] PROGMEM = "Sunday";
 PGM_P dayTable[] PROGMEM = { monday, tuesday, wednesday, thursday, friday, saturday, sunday };
-uint8_t dayLengthTable[] = { 6, 7, 9, 8, 6, 8, 6};
+
+//month strings
+char jan[] PROGMEM = "January";
+char feb[] PROGMEM = "February";
+char mar[] PROGMEM = "March";
+char apr[] PROGMEM = "April";
+char may[] PROGMEM = "May";
+char jun[] PROGMEM = "June";
+char jul[] PROGMEM = "July";
+char aug[] PROGMEM = "August";
+char sep[] PROGMEM = "September";
+char oct[] PROGMEM = "October";
+char nov[] PROGMEM = "November";
+char dec[] PROGMEM = "December";
+PGM_P monthTable[] PROGMEM = { jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec};
 
 //alarm icon image
 uint8_t alarmIcon[7] = { 0x00, 0x3A, 0x44, 0xD4, 0x44, 0x3A, 0x00 }; 
@@ -59,8 +75,6 @@ uint8_t haveAlarmIcon;
 
 //Is it time to redraw the screen?
 uint8_t redraw_time = 0;
-
-uint8_t last_score_mode = 0;
 
 uint32_t rval[2]={0,0};
 uint32_t key[4];
@@ -144,6 +158,7 @@ void setscore(void) //Identify what information needs to be shown
   }
   switch(score_mode) {
   	case SCORE_MODE_DOW:
+      needPopUp = 1;
   	  break;
   	case SCORE_MODE_DATELONG:
   	  break;
@@ -197,7 +212,7 @@ void initanim(void) {
   
   needPopUp = havePopUp = 0;
   haveAlarmIcon = alarm_on;
-  
+  last_score_mode = score_mode;
   lastTimeFormat = time_format;
 }
 
@@ -258,15 +273,9 @@ void step(void) {
       haveAlarmIcon = alarm_on;
    }
    
-   dayotw = dotw(date_m, date_d, date_y);
-   if(dayotw != dayotw_old)
-   {
-      strcpy_P(dayText, (PGM_P)pgm_read_word(&(dayTable[dayotw-1])));
-   }
-   
    if(needPopUp && !havePopUp)
    {
-      if(region == REGION_US)
+      if((region == REGION_US) || (region == DOW_REGION_US))
       { 
          sprintf(dateString, "%02d/%02d/20%2d", date_m, date_d, date_y);
       }
@@ -304,7 +313,7 @@ void draw(uint8_t inverted) {
       {
          //the below formula is (displayAreaWidth - (wordLength*characterWidth))/2
          // it centers the day of the week in the box
-         uint8_t offset = (96 - (dayLengthTable[dayotw - 1]*6))>>1;
+         uint8_t offset = (96 - (strlen(dayText)*6))>>1;
          glcdSetAddress(18 + offset, 2);
          glcdPutStr(dayText, inverted);
          glcdSetAddress(36, 4);
@@ -378,7 +387,20 @@ void draw(uint8_t inverted) {
    if(redraw_time)
    {
       redraw_time = 0;
+      
+      //clear time bar
       glcdFillRectangle(19, GLCD_YPIXELS-9, GLCD_XPIXELS-19, 9, inverted);
+      
+       //draw alarm icon
+      if(alarm_on)
+      {
+         for(uint8_t i = 0; i < 7; i++)
+            for(uint8_t j = 0; j < 7; j++)
+               if(alarmIcon[i] & ((uint8_t)1 << (7-j)))
+                  glcdFillRectangle(43 + i, (GLCD_YPIXELS - 8) + j, 1, 1, !inverted);
+      }
+      
+      //write time
       glcdSetAddress(GLCD_XPIXELS - 37, GLCD_TEXT_LINES-1);
       if((hour12/10) == 0)
       {
@@ -404,14 +426,7 @@ void draw(uint8_t inverted) {
          }
       }
       
-      //draw alarm icon
-      if(alarm_on)
-      {
-         for(uint8_t i = 0; i < 7; i++)
-            for(uint8_t j = 0; j < 7; j++)
-               if(alarmIcon[i] & ((uint8_t)1 << (7-j)))
-                  glcdFillRectangle(43 + i, (GLCD_YPIXELS - 8) + j, 1, 1, !inverted);
-      }
+
    }
    
    glcdSetAddress(GLCD_XPIXELS - 25, GLCD_TEXT_LINES - 1); //Place Colon
@@ -462,4 +477,12 @@ uint8_t dotw(uint8_t mon, uint8_t day, uint8_t yr)
       year -= 1;
     }
     return (day + (2 * month) + (6 * (month+1)/10) + year + (year/4) - (year/100) + (year/400) + 1) % 7;
-}    
+}
+
+/*void fillPopUp(uint8_t score_mode)
+{
+      if((score_mode == SCORE_MODE_DATE)||*/
+      
+            /*fillPopUp(score_mode);
+      dayotw = dotw(date_m, date_d, date_y);
+      strcpy_P(PopUp1, (PGM_P)pgm_read_word(&(dayTable[dayotw-1])));*/
