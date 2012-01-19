@@ -1,1 +1,7 @@
-This branch is designed to be a barebones ersion of the monochron firmware. It has no animation, but is ready to be built upon.
+Spacechron.
+By Scott McKittrick.
+http://www.scottmckittrick.com
+
+This is a space themed clock "face" for the monochron clock kit by Adafruit Industries.
+
+The speed of the station can be adjusted by changing the value of SECONDS_PER_PIXEL.
