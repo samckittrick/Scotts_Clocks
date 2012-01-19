@@ -85,7 +85,7 @@ LDFLAGS = -Wl,-Map=$(TARGET).map,--cref
 #LDFLAGS += -Wl,-u,vfprintf -lprintf_flt
 
 # -lm = math library
-#LDFLAGS += -lm
+LDFLAGS += -lm
 
 
 
