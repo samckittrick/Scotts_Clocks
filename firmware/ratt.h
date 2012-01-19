@@ -163,6 +163,8 @@ void step(void);
 void setscore(void);
 void draw(uint8_t inverted);
 void drawMap(uint8_t inverted);
+uint8_t getMapPixelValue(uint8_t x, uint8_t y);
+uint8_t groundTrack(uint8_t x);
 
 void set_alarm(void);
 void set_time(void);

@@ -70,11 +70,23 @@ char dec[] PROGMEM = "December";
 PGM_P monthTable[] PROGMEM = { jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec};
 
 //alarm icon image
-uint8_t alarmIcon[7] = { 0x00, 0x3A, 0x44, 0xD4, 0x44, 0x3A, 0x00 }; 
+//7x7 icon. See images.ods
+uint8_t alarmIcon[] = { 0x00, 0x3A, 0x44, 0xD4, 0x44, 0x3A, 0x00 }; 
 uint8_t haveAlarmIcon;
+
+//Space Station Icon
+//3x5 icon. See images.ods
+uint8_t spaceStation[] = { 0x00, 0x6C, 0x10, 0x6C, 0x00 };
+uint8_t stationLocation, oldStationLocation, lastStationTime;
 
 //Is it time to redraw the screen?
 uint8_t redraw_time = 0;
+uint8_t redraw_station = 0;
+
+//Calculating groundtrack constants
+#define RADIANS_PER_PIXEL 0.0490873852 //2Pi spread across a 128 pixel screen
+#define PIXELS_PER_SECOND 0.0237037037 //128 pixels spread across a 90 minute orbit
+#define SECONDS_PER_PIXEL 42 //It takes 42 seconds for the station to move one pixel based on a 90 minute orbit
 
 uint32_t rval[2]={0,0};
 uint32_t key[4];
@@ -214,6 +226,9 @@ void initanim(void) {
   haveAlarmIcon = alarm_on;
   last_score_mode = score_mode;
   lastTimeFormat = time_format;
+  stationLocation = oldStationLocation = 3;
+  lastStationTime = time_s;
+  redraw_station = 5;
 }
 
 //initialise the display. This function is called at least once, and may be called several times after.
@@ -264,6 +279,38 @@ void step(void) {
       }
       
       lastTimeFormat = time_format;
+   }
+   
+   if(time_s != lastStationTime)
+   {
+      /*lastStationTime = time_s;
+      redraw_station = 1;
+      oldStationLocation = stationLocation;
+      stationLocation++;
+      if(stationLocation > GLCD_XPIXELS - 4)
+         stationLocation = 3;*/
+      uint8_t offset = 0;
+      if(lastStationTime > time_s) //deal with the fact that time loops around
+      {
+         offset = (time_s + 59) - lastStationTime;
+      }
+      else
+      {
+         offset = time_s - lastStationTime;
+      }
+      
+      if(offset >= SECONDS_PER_PIXEL)
+      {      
+         oldStationLocation = stationLocation;
+         stationLocation++;
+         //if the station moves off the right of the screen, we must move wrap it over to the left.
+         //if we don't, it causes the screen to flash like crazy
+         if(stationLocation > GLCD_XPIXELS -4)
+            stationLocation = 3;
+         //setting the time this way ensures that the station moves 1 pixel every 42 seconds even if we don't move it right on time.
+         lastStationTime = time_s; 
+         redraw_station = 1;
+      }
    }
    
    //if the alarm status has changed
@@ -381,8 +428,38 @@ void draw(uint8_t inverted) {
       drawMap(inverted);
       havePopUp = 0;
       redraw_time = 1;
+      redraw_station = 1;
    }
    
+   if((redraw_station) && !(havePopUp && (stationLocation >= 13) && (stationLocation <= 113)))
+   {
+      redraw_station = 0;
+      //Clear old station from screen. Must put pixels back the way they were, not just erase them.
+      uint8_t oldStationY = groundTrack(oldStationLocation);
+      for(uint8_t i = 0; i < 5; i++)
+         for(uint8_t j = 0; j < 8; j++)
+            if(getMapPixelValue((oldStationLocation-1)+i, (oldStationY-4)+j))
+            {
+               glcdFillRectangle((oldStationLocation-1)+i, (oldStationY-4)+j, 1, 1, !inverted);
+            }
+            else
+            {
+               glcdFillRectangle((oldStationLocation -1) + i, (oldStationY -4) + j, 1, 1, inverted);
+            }
+      
+      //draw new station
+      uint8_t stationY = groundTrack(stationLocation);
+      for(uint8_t i = 0; i < 5; i++)
+         for(uint8_t j = 0; j < 8; j++)
+            if(spaceStation[i] & ((uint8_t)1 << (8-j)))
+            {
+               glcdFillRectangle((stationLocation - 1)+i, (stationY - 4)+j, 1,1, !inverted);
+            }
+            else
+            {
+               glcdFillRectangle((stationLocation - 1)+i, (stationY - 4)+j, 1,1, inverted);
+            }
+   }
    
    if(redraw_time)
    {
@@ -462,6 +539,42 @@ void drawMap(uint8_t inverted)
             glcdFillRectangle(i>>1, j+31,1,1,!inverted);
       }
    }
+   
+   glcdFillRectangle(0,0,GLCD_XPIXELS, 1, !inverted);
+   
+   for(uint8_t i = 0; i < 128; i++)
+   {
+      glcdFillRectangle(i, groundTrack(i), 1, 1, !inverted);
+   }
+   
+}
+
+uint8_t groundTrack(uint8_t x)
+{
+   return 27 + floor(20*sin(RADIANS_PER_PIXEL*(x+36)));
+}
+
+uint8_t getMapPixelValue(uint8_t x, uint8_t y)
+{
+   uint8_t mapDot = 0;
+   uint8_t gcDot = 0;
+   if((y < 32) && (y >= 0))
+   {
+      uint32_t column = pgm_read_dword_near(worldMap + (x << 1));
+      if(column & ((uint32_t)1 << (32 - y)))
+         mapDot = 1;
+   }
+   else if((y >= 32) && (y < 54))
+   {
+      uint32_t column = pgm_read_dword_near(worldMap + (x << 1) + 1);
+      if(column & ((uint32_t)1 << (32 - (y - 32))))
+         mapDot = 1;
+   }
+   
+   if(groundTrack(x) == y)
+      gcDot = 1;
+   
+   return mapDot || gcDot;
 }
 
 uint8_t dotw(uint8_t mon, uint8_t day, uint8_t yr)
