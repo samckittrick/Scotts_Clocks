@@ -86,7 +86,7 @@ uint8_t redraw_station = 0;
 //Calculating groundtrack constants
 #define RADIANS_PER_PIXEL 0.0490873852 //2Pi spread across a 128 pixel screen
 #define PIXELS_PER_SECOND 0.0237037037 //128 pixels spread across a 90 minute orbit
-#define SECONDS_PER_PIXEL 42 //It takes 42 seconds for the station to move one pixel based on a 90 minute orbit
+#define SECONDS_PER_PIXEL 21 //It takes 42 seconds for the station to move one pixel based on a 90 minute orbit
 
 uint32_t rval[2]={0,0};
 uint32_t key[4];
