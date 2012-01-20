@@ -147,6 +147,21 @@ void initanim(void) {
   DEBUG(putstring_nl(""));
   xpos = 0;
   ypos = 0;
+  
+   minute_changed = 0;
+   hour_changed = 0;
+   if(ypos >= GLCD_TEXT_LINES)
+      ypos = 0;
+      strcpy(msg, "Hello World");
+   
+   if(time_m & 0x1)
+   {
+      baseInverted = 1;
+   }
+   else
+   {
+      baseInverted = 0;
+   }
 }
 
 //initialise the display. This function is called at least once, and may be called several times after.
