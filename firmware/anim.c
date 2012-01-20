@@ -165,7 +165,7 @@ void initanim(void) {
 }
 
 //initialise the display. This function is called at least once, and may be called several times after.
-// It is possible that this function is called every ANIM_TICK miliseconds, but I am not sure yet.
+// This function is called once when the clock starts and then every time a menu is shown and cleared.
 void initdisplay(uint8_t inverted) {
    glcdFillRectangle(0,0,GLCD_XPIXELS, GLCD_YPIXELS, inverted);
    glcdSetAddress(xpos, ypos);
