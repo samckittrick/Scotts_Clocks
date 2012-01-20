@@ -5,3 +5,6 @@ http://www.scottmckittrick.com
 This is a space themed clock "face" for the monochron clock kit by Adafruit Industries.
 
 The speed of the station can be adjusted by changing the value of SECONDS_PER_PIXEL.
+
+The ground track and station locations are simulated using the following equation:
+Y = 27 + floor( 20sin( Radians_PER_PIXEL*(x+36)))
