@@ -194,15 +194,9 @@ void step(void) {
          baseInverted = 0;
       }
       
-      if(OCR2A == OCR2A_VALUE)
-      {
-         OCR2A = 1;
-      }
-      else
-      {
-         OCR2A = OCR2A_VALUE;
-      }
-      
+      #ifdef AUTODIM
+         autoDim(time_h, time_m);
+      #endif
    }
    
    
