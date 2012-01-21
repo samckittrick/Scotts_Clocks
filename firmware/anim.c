@@ -311,6 +311,10 @@ void step(void) {
          lastStationTime = time_s; 
          redraw_station = 1;
       }
+
+      #ifdef AUTODIM
+         autoDim(time_h, time_m);
+      #endif
    }
    
    //if the alarm status has changed

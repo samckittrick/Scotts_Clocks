@@ -8,6 +8,9 @@
 //BACKLIGHT_ADJUST - Allows software control of backlight, assuming you mounted your 100ohm resistor in R2'.
 #define BACKLIGHT_ADJUST 1
 
+//Advanced Software Options
+#define AUTODIM
+
 // how fast to proceed the animation, note that the redrawing
 // takes some time too so you dont want this too small or itll
 // 'hiccup' and appear jittery
@@ -171,6 +174,9 @@ void set_time(void);
 void set_region(void);
 void set_date(void);
 void set_backlight(void);
+#ifdef AUTODIM
+void autoDim(uint8_t hour, uint8_t minute);
+#endif
 void print_timehour(uint8_t h, uint8_t inverted);
 void print_alarmhour(uint8_t h, uint8_t inverted);
 void display_menu(void);
