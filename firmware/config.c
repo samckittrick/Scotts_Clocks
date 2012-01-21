@@ -391,7 +391,7 @@ void set_backlight(void) {
 	DEBUG(putstring("Setting backlight"));
 	// ok now its selected
 	mode = SET_BRT;
-	// print the region 
+	// print the region selected
 	glcdSetAddress(MENU_INDENT + 15*6, 5);
 	printnumber(OCR2B>>OCR2B_BITSHIFT,INVERTED);
 	

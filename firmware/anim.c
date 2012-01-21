@@ -30,10 +30,19 @@ extern volatile uint8_t region;
 extern volatile uint8_t score_mode;
 extern volatile uint8_t baseInverted;
 
+//Variables needed for the AutoDim feature
+#ifdef AUTODIM
+extern volatile uint8_t autodim_day_time_h;
+extern volatile uint8_t autodim_day_time_m;
+extern volatile uint8_t autodim_day_bright;
+extern volatile uint8_t autodim_night_time_h;
+extern volatile uint8_t autodim_night_time_m;
+extern volatile uint8_t autodim_night_bright;
+#endif
+
 //A couple variables to print some basic message on the screen as a place holder for a new animation.
 uint8_t xpos, ypos;
 char msg[22];
-
 
 extern volatile uint8_t minute_changed, hour_changed;
 

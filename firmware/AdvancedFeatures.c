@@ -29,6 +29,7 @@
       .data: 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 #ifdef AUTODIM
+
 void autoDim(uint8_t hour, uint8_t minute)
 {
    if((hour == 6) && (minute == 0))
@@ -40,6 +41,11 @@ void autoDim(uint8_t hour, uint8_t minute)
    {
       OCR2B = 1;
    }
+}
+
+setBacklightAutoDim()
+{
+   uint8_t mode = SET_BRIGHTNESS;
 }
 
 #endif
