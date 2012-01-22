@@ -30,16 +30,6 @@ extern volatile uint8_t region;
 extern volatile uint8_t score_mode;
 extern volatile uint8_t baseInverted;
 
-//Variables needed for the AutoDim feature
-#ifdef AUTODIM
-extern volatile uint8_t autodim_day_time_h;
-extern volatile uint8_t autodim_day_time_m;
-extern volatile uint8_t autodim_day_bright;
-extern volatile uint8_t autodim_night_time_h;
-extern volatile uint8_t autodim_night_time_m;
-extern volatile uint8_t autodim_night_bright;
-#endif
-
 //A couple variables to print some basic message on the screen as a place holder for a new animation.
 uint8_t xpos, ypos;
 char msg[22];
@@ -171,6 +161,10 @@ void initanim(void) {
    {
       baseInverted = 0;
    }
+   
+   #ifdef AUTODIM
+      autoDim(time_h, time_m);
+   #endif
 }
 
 //initialise the display. This function is called at least once, and may be called several times after.
@@ -207,9 +201,6 @@ void step(void) {
          autoDim(time_h, time_m);
       #endif
    }
-   
-   
- 
 }
 
 //draw everything to the screen

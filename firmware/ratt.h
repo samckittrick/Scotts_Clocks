@@ -9,7 +9,7 @@
 #define BACKLIGHT_ADJUST 1
 
 //Advanced Software Options
-//#define AUTODIM
+#define AUTODIM
 
 // how fast to proceed the animation, note that the redrawing
 // takes some time too so you dont want this too small or itll
@@ -181,7 +181,8 @@ void set_date(void);
 void set_backlight(void);
 #ifdef AUTODIM
 void autoDim(uint8_t hour, uint8_t minute);
-void setBacklightAutoDim();
+void setBacklightAutoDim(void);
+uint16_t generateTimeCombo(uint8_t hour, uint8_t minute);
 #endif
 void print_timehour(uint8_t h, uint8_t inverted);
 void print_alarmhour(uint8_t h, uint8_t inverted);

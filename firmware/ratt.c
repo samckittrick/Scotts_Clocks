@@ -273,11 +273,11 @@ int main(void) {
 #ifdef BACKLIGHT_ADJUST
 	  case SET_REGION:
 	displaymode = SET_BRIGHTNESS;
-   #ifdef AUTODIM
-   setBacklightAutoDim();
-   #else
+   //#ifdef AUTODIM
+   //setBacklightAutoDim();
+   //#else
 	set_backlight();
-   #endif
+   //#endif
 	break;
 #endif
       default:
