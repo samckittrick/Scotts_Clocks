@@ -39,7 +39,6 @@ uint8_t last_score_mode;
 uint8_t timePM;
 uint8_t showColon;
 uint8_t needPopUp, havePopUp;
-//char PopUp1[11], PopUp2[10], PopUp3[11];
 char dateString[11];
 uint8_t dayotw, dayotw_old;
 char dayText[10];
@@ -229,6 +228,10 @@ void initanim(void) {
   stationLocation = oldStationLocation = 3;
   lastStationTime = time_s;
   redraw_station = 5;
+  
+   #ifdef AUTODIM
+      autoDim(time_h, time_m);
+   #endif
 }
 
 //initialise the display. This function is called at least once, and may be called several times after.
