@@ -9,7 +9,10 @@
 #define BACKLIGHT_ADJUST 1
 
 //Advanced Software Options
+//Note AutoDim will only work if the backlight is adjustable.
+#ifdef BACKLIGHT_ADJUST
 #define AUTODIM
+#endif
 
 // how fast to proceed the animation, note that the redrawing
 // takes some time too so you dont want this too small or itll
