@@ -88,6 +88,12 @@ void init_eeprom(void) {	//Set eeprom to a default state.
     eeprom_write_byte((uint8_t *)EE_TIME_FORMAT, TIME_12H);
     eeprom_write_byte((uint8_t *)EE_SNOOZE, 10);
     eeprom_write_byte((uint8_t *)EE_INIT, EE_INITIALIZED);
+    #ifdef AUTODIM_EEPROM
+    eeprom_write_word((uint8_t *)EE_AUTODIM_DAY_TIME, 360);
+    eeprom_write_word((uint8_t *)EE_AUTODIM_NIGHT_TIME, 1380);
+    eeprom_write_byte((uint8_t *)EE_AUTODIM_DAY_BRIGHT, 11);
+    eeprom_write_byte((uint8_t *)EE_AUTODIM_NIGHT_BRIGHT, 1);
+    #endif
   }
 }
 
