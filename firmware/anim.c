@@ -228,10 +228,6 @@ void initanim(void) {
   stationLocation = oldStationLocation = 3;
   lastStationTime = time_s;
   redraw_station = 5;
-  
-   #ifdef AUTODIM
-      autoDim(time_h, time_m);
-   #endif
 }
 
 //initialise the display. This function is called at least once, and may be called several times after.
@@ -247,6 +243,10 @@ void initdisplay(uint8_t inverted) {
    glcdSetAddress(1, GLCD_TEXT_LINES-1);
    glcdPutStr("ISS", inverted);
    redraw_time = 1;
+   
+   #ifdef AUTODIM
+      autoDim(time_h, time_m);
+   #endif
 }
 
 //advance the animation by one step. This function is called from ratt.c every ANIM_TICK miliseconds.

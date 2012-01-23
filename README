@@ -8,3 +8,11 @@ The speed of the station can be adjusted by changing the value of SECONDS_PER_PI
 
 The ground track and station locations are simulated using the following equation:
 Y = 27 + floor( 20sin( Radians_PER_PIXEL*(x+36)))
+
+Extra Features (Disabled by default)
+-AutoDim
++ Allows the clock to automatically dim the backlight at specified times
++ To activate uncomment the line "#define AUTODIM" in ratt.h
++ Resource Usage
+      .data: 58 bytes
+      .text: 1848 bytes
