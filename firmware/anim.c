@@ -34,7 +34,6 @@ extern volatile uint8_t baseInverted;
 uint8_t xpos, ypos;
 char msg[22];
 
-
 extern volatile uint8_t minute_changed, hour_changed;
 
 //Is it time to redraw the screen?
@@ -170,6 +169,10 @@ void initdisplay(uint8_t inverted) {
    glcdFillRectangle(0,0,GLCD_XPIXELS, GLCD_YPIXELS, inverted);
    glcdSetAddress(xpos, ypos);
    glcdPutStr(msg, inverted);
+   
+   #ifdef AUTODIM
+      autoDim(time_h, time_m);
+   #endif
 }
 
 //advance the animation by one step. This function is called from ratt.c every ANIM_TICK miliseconds.
@@ -194,10 +197,10 @@ void step(void) {
          baseInverted = 0;
       }
       
+      #ifdef AUTODIM
+         autoDim(time_h, time_m);
+      #endif
    }
-   
-   
- 
 }
 
 //draw everything to the screen

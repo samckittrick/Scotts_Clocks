@@ -68,8 +68,12 @@ void display_menu(void) {
   
 #ifdef BACKLIGHT_ADJUST
   glcdSetAddress(MENU_INDENT, 5);
+  #ifndef AUTODIM
   glcdPutStr("Set Backlight: ", NORMAL);
   printnumber(OCR2B>>OCR2B_BITSHIFT,NORMAL);
+  #else
+  glcdPutStr("Set AutoDim", NORMAL);
+  #endif
 #endif
   
   glcdSetAddress(0, 6);
@@ -357,7 +361,7 @@ void set_date(void) {
 #ifdef BACKLIGHT_ADJUST
 void set_backlight(void) {
   uint8_t mode = SET_BRIGHTNESS;
-
+  
   display_menu();
   
   screenmutex++;
@@ -382,8 +386,21 @@ void set_backlight(void) {
       displaymode = SHOW_TIME;     
       return;
     }
-  
     if (just_pressed & 0x2) {
+    #ifdef AUTODIM
+      just_pressed = 0;
+      setBacklightAutoDim();
+      display_menu();
+      screenmutex++;
+      glcdSetAddress(0, 6);
+      glcdPutStr("Press MENU to exit   ", NORMAL);
+
+     // put a small arrow next to 'set 12h/24h'
+     drawArrow(0, 43, MENU_INDENT -1);
+     screenmutex--;
+     
+     timeoutcounter = INACTIVITYTIMEOUT;  
+    #else
       just_pressed = 0;
       screenmutex++;
 
@@ -391,7 +408,7 @@ void set_backlight(void) {
 	DEBUG(putstring("Setting backlight"));
 	// ok now its selected
 	mode = SET_BRT;
-	// print the region 
+	// print the region selected
 	glcdSetAddress(MENU_INDENT + 15*6, 5);
 	printnumber(OCR2B>>OCR2B_BITSHIFT,INVERTED);
 	
@@ -412,6 +429,7 @@ void set_backlight(void) {
 	glcdPutStr("Press SET to set   ", NORMAL);
       }
       screenmutex--;
+   #endif
     }
     if ((just_pressed & 0x4) || (pressed & 0x4)) {
       just_pressed = 0;
