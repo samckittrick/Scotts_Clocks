@@ -282,12 +282,14 @@ void step(void) {
       }
       
       lastTimeFormat = time_format;
-      
-      if(dayotw != dayotw_old)
-      {
-         strcpy_P(dayText, (PGM_P)pgm_read_dword(&(dayTable[dayotw])));
-         dayotw_old = dayotw;
-      }
+   }
+   
+         
+   dayotw = dotw(date_m, date_d, date_y);
+   if(dayotw != dayotw_old)
+   {
+      strcpy_P(dayText, (PGM_P)pgm_read_dword(&(dayTable[dayotw])));
+      dayotw_old = dayotw;
    }
    
    if(time_s != lastStationTime)
