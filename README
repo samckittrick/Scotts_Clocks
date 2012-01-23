@@ -1,1 +1,10 @@
-This branch is designed to be a barebones ersion of the monochron firmware. It has no animation, but is ready to be built upon.
+This branch is designed to be a barebones version of the monochron firmware. It has no animation, but is ready to be built upon.
+
+
+Extra Features (Disabled by default)
+-AutoDim
++ Allows the clock to automatically dim the backlight at specified times
++ To activate uncomment the line "#define AUTODIM" in ratt.h
++ Resource Usage
+      .data: 58 bytes
+      .text: 1848 bytes
