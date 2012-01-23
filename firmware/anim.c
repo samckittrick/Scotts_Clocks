@@ -51,7 +51,7 @@ char thursday[] PROGMEM = "Thursday";
 char friday[] PROGMEM = "Friday";
 char saturday[] PROGMEM = "Saturday";
 char sunday[] PROGMEM = "Sunday";
-PGM_P dayTable[] PROGMEM = { monday, tuesday, wednesday, thursday, friday, saturday, sunday };
+const char *dayTable[] PROGMEM = { sunday, monday, tuesday, wednesday, thursday, friday, saturday };
 
 //month strings
 char jan[] PROGMEM = "January";
@@ -219,7 +219,7 @@ void initanim(void) {
   }
   
   dayotw = dayotw_old = dotw(date_m, date_d, date_y);
-  strcpy_P(dayText, (PGM_P)pgm_read_word(&(dayTable[dayotw-1])));
+  strcpy_P(dayText, (char*)pgm_read_dword(&(dayTable[dayotw])));
   
   needPopUp = havePopUp = 0;
   haveAlarmIcon = alarm_on;
@@ -282,6 +282,12 @@ void step(void) {
       }
       
       lastTimeFormat = time_format;
+      
+      if(dayotw != dayotw_old)
+      {
+         strcpy_P(dayText, (PGM_P)pgm_read_dword(&(dayTable[dayotw])));
+         dayotw_old = dayotw;
+      }
    }
    
    if(time_s != lastStationTime)
