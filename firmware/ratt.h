@@ -140,14 +140,6 @@
 #define SET_REG 104
 
 #define SET_BRT 105
-#ifdef AUTODIM
-   #define SET_DAY_BRIGHT 601
-   #define SET_DAY_TIME_H 602
-   #define SET_DAY_TIME_M 603
-   #define SET_NIGHT_BRIGHT 604
-   #define SET_NIGHT_TIME_H 605
-   #define SET_NIGHT_TIME_M 606
-#endif
 
 //DO NOT set EE_INITIALIZED to 0xFF / 255,  as that is
 //the state the eeprom will be in, when totally erased.
@@ -182,7 +174,6 @@ void set_backlight(void);
 #ifdef AUTODIM
 void autoDim(uint8_t hour, uint8_t minute);
 void setBacklightAutoDim(void);
-uint16_t generateTimeCombo(uint8_t hour, uint8_t minute);
 #endif
 void print_timehour(uint8_t h, uint8_t inverted);
 void print_alarmhour(uint8_t h, uint8_t inverted);
