@@ -33,8 +33,8 @@ extern volatile uint8_t time_h, time_m;
    To Activate uncomment "#define AUTODIM" in ratt.h
    
    Required resources:
-      .text: 
-      .data: 
+      .text: 58 bytes
+      .data: 19924
 +++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 #ifdef AUTODIM
 //enums   

@@ -68,11 +68,11 @@ void display_menu(void) {
   
 #ifdef BACKLIGHT_ADJUST
   glcdSetAddress(MENU_INDENT, 5);
-  #ifndef AUTODIM
+  #ifdef AUTODIM
+  glcdPutStr("Set AutoDim", NORMAL);
+  #else
   glcdPutStr("Set Backlight: ", NORMAL);
   printnumber(OCR2B>>OCR2B_BITSHIFT,NORMAL);
-  #else
-  glcdPutStr("Set AutoDim", NORMAL);
   #endif
 #endif
   
