@@ -219,11 +219,11 @@ void setBacklightAutoDim()
       {
          timeoutcounter = INACTIVITYTIMEOUT;
       }
-      /*else if(!timeoutcounter)
+      else if(!timeoutcounter)
       {
          exit = 1;
          continue;
-      }*/
+      }
       
       if(just_pressed & 0x2)
       {
