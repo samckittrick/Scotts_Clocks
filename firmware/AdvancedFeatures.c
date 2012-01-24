@@ -101,7 +101,6 @@ void autoDim(uint8_t hour, uint8_t minute)
 void setBacklightAutoDim()
 {
    uint8_t mode = AUTODIM_NIGHT_TIME;
-   uint8_t selected = 0;
    uint8_t hour;
    uint8_t minute;
    screenmutex++; //exclude all other writes to the screen
@@ -245,6 +244,10 @@ void setBacklightAutoDim()
                glcdSetAddress(GLCD_XPIXELS -12, 2);
                printnumber(OCR2B>>OCR2B_BITSHIFT, NORMAL);
                autodim_night_bright = OCR2B;
+               #ifdef AUTODIM_EEPROM
+               if(autodim_night_bright != eeprom_read_byte((uint8_t *)EE_AUTODIM_NIGHT_BRIGHT))
+                  eeprom_write_byte((uint8_t *)EE_AUTODIM_NIGHT_BRIGHT, autodim_night_bright);
+               #endif
                autoDim(time_h, time_m);
                glcdSetAddress(0, 6);
                glcdPutStr("Press Set to set ", NORMAL);
@@ -264,6 +267,10 @@ void setBacklightAutoDim()
                glcdSetAddress(GLCD_XPIXELS -12, 5);
                printnumber(OCR2B>>OCR2B_BITSHIFT, NORMAL);
                autodim_day_bright = OCR2B;
+               #ifdef AUTODIM_EEPROM
+               if(autodim_day_bright != eeprom_read_byte((uint8_t *)EE_AUTODIM_DAY_BRIGHT))
+                  eeprom_write_byte((uint8_t *)EE_AUTODIM_DAY_BRIGHT, autodim_day_bright);
+               #endif
                autoDim(time_h, time_m);
                glcdSetAddress(0, 6);
                glcdPutStr("Press Set to set ", NORMAL);
@@ -292,6 +299,10 @@ void setBacklightAutoDim()
                printnumber(autodim_day_time%60, NORMAL);
                glcdSetAddress(0, 6);
                glcdPutStr("Press Set to set ", NORMAL);
+               #ifdef AUTODIM_EEPROM
+               if(autodim_day_time != eeprom_read_word((uint16_t *)EE_AUTODIM_DAY_TIME))
+                  eeprom_write_word((uint16_t *)EE_AUTODIM_DAY_TIME, autodim_day_time);
+               #endif
                break;
 
             //Night Time
@@ -316,6 +327,10 @@ void setBacklightAutoDim()
                printnumber(autodim_night_time%60, NORMAL);
                glcdSetAddress(0, 6);
                glcdPutStr("Press Set to set ", NORMAL);
+               #ifdef AUTODIM_EEPROM
+               if(autodim_night_time != eeprom_read_word((uint16_t *)EE_AUTODIM_NIGHT_TIME))
+                  eeprom_write_word((uint16_t *)EE_AUTODIM_NIGHT_TIME, autodim_night_time);
+               #endif
                break;
             
             default:
@@ -446,4 +461,51 @@ void setBacklightAutoDim()
    return;
 }
 
-#endif
+#ifdef AUTODIM_EEPROM
+void init_autodim_eeprom()
+{
+   uint16_t day_time, night_time;
+   uint8_t day_bright, night_bright;
+   day_time = eeprom_read_word((uint16_t *)EE_AUTODIM_DAY_TIME);
+   night_time = eeprom_read_word((uint16_t *)EE_AUTODIM_NIGHT_TIME);
+   day_bright = eeprom_read_byte((uint8_t *)EE_AUTODIM_DAY_BRIGHT);
+   night_bright = eeprom_read_byte((uint8_t *)EE_AUTODIM_NIGHT_BRIGHT);
+   
+   if((day_time >= 0) && (day_time <= 1440))
+   {
+      autodim_day_time = day_time;
+   }
+   else
+   {
+       eeprom_write_word((uint16_t *)EE_AUTODIM_DAY_TIME, autodim_day_time);
+   }
+   
+   if((night_time >= 0) && (night_time <= 1440))
+   {
+      autodim_night_time = night_time;
+   }
+   else
+   {
+      eeprom_write_word((uint16_t *)EE_AUTODIM_NIGHT_TIME, autodim_night_time);
+   }
+      
+   if((day_bright >= 0) && (day_bright <= OCR2A_VALUE))
+   {
+      autodim_day_bright = day_bright;
+   }
+   else
+   {
+      eeprom_write_byte((uint8_t *)EE_AUTODIM_DAY_BRIGHT, autodim_day_bright);
+   }
+      
+   if((night_bright >= 0) && (night_bright <= OCR2A_VALUE))
+   {
+      autodim_night_bright = night_bright;
+   }
+   else
+   {
+      eeprom_write_byte((uint8_t *)EE_AUTODIM_NIGHT_BRIGHT, autodim_night_bright);
+   }
+}
+#endif //#ifdef AUTODIM_EEPROM
+#endif //#ifdef AUTODIM
