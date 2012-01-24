@@ -19,7 +19,7 @@
 //         Before enabling it, ensure it does not conflict with any other memory usage.
 //Note: AutoDim will work without the eeprom usage. It just will not keep it's settings in the event of a reset.s
 #ifdef AUTODIM
-#define AUTODIM_EEPROM
+//#define AUTODIM_EEPROM
 #endif
 
 // how fast to proceed the animation, note that the redrawing
