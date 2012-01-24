@@ -13,11 +13,12 @@
 #ifdef BACKLIGHT_ADJUST
 #define AUTODIM
 
-//This option allows AutoDim to save it's settings. Uncomment to enable
+//This option allows AutoDim to save it's settings. It will only work if AutoDim is enabled. Uncomment to enable.
 //Warning: Enabling this option uses shared memory. 
 //         Before enabling it, ensure it does not conflict with any other memory usage.
+//Note: AutoDim will work without the eeprom usage. It just will not keep it's settings in the event of a reset.s
 #ifdef AUTODIM
-//#define AUTODIM_EEPROM
+#define AUTODIM_EEPROM
 #endif
 #endif
 
@@ -190,6 +191,9 @@ void set_backlight(void);
 #ifdef AUTODIM
 void autoDim(uint8_t hour, uint8_t minute);
 void setBacklightAutoDim(void);
+#ifdef AUTODIM_EEPROM
+void init_autodim_eeprom(void);
+#endif
 #endif
 void print_timehour(uint8_t h, uint8_t inverted);
 void print_alarmhour(uint8_t h, uint8_t inverted);
