@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Spacechron.
 By Scott McKittrick.
 http://www.scottmckittrick.com
@@ -8,6 +9,10 @@ The speed of the station can be adjusted by changing the value of SECONDS_PER_PI
 
 The ground track and station locations are simulated using the following equation:
 Y = 27 + floor( 20sin( Radians_PER_PIXEL*(x+36)))
+=======
+This branch is designed to be a barebones version of the monochron firmware. It has no animation, but is ready to be built upon.
+
+>>>>>>> AutoDim
 
 Extra Features (Disabled by default)
 -AutoDim
@@ -16,3 +21,10 @@ Extra Features (Disabled by default)
 + Resource Usage
       .data: 58 bytes
       .text: 1848 bytes
+<<<<<<< HEAD
+=======
++ Addional Option: eeprom usage
+   When activated, AutoDim saves it's settings in eeprom
+   This uses shared memory space, so make sure there are no conflicts before enabling it.
+   Enable by uncommenting the line "#define AUTODIM_EEPROM" in ratt.h
+>>>>>>> AutoDim

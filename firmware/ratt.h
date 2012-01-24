@@ -14,6 +14,14 @@
 #define AUTODIM
 #endif
 
+//This option allows AutoDim to save it's settings. It will only work if AutoDim is enabled. Uncomment to enable.
+//Warning: Enabling this option uses shared memory. 
+//         Before enabling it, ensure it does not conflict with any other memory usage.
+//Note: AutoDim will work without the eeprom usage. It just will not keep it's settings in the event of a reset.s
+#ifdef AUTODIM
+#define AUTODIM_EEPROM
+#endif
+
 // how fast to proceed the animation, note that the redrawing
 // takes some time too so you dont want this too small or itll
 // 'hiccup' and appear jittery
@@ -33,8 +41,8 @@
 //By logical anding just pressed with a number like 0x1 we can determine which button was pressed
 //Menu button is 0x1
 //Set button is 0x2
-//+ button is 0x3
-//Multiple buttons can be watched for by setting combinations of bits, i.e. 0x4 which is + and menu button.
+//+ button is 0x4
+//Multiple buttons can be watched for by setting combinations of bits, i.e. 0x6 which is + and menu button.
 /*************************** DISPLAY PARAMETERS */
 
 // how many pixels to indent the menu items
@@ -155,6 +163,12 @@
 #define EE_REGION 5
 #define EE_TIME_FORMAT 6
 #define EE_SNOOZE 7
+#ifdef AUTODIM_EEPROM
+#define EE_AUTODIM_DAY_TIME 8 //Note this variable is 2 bytes.
+#define EE_AUTODIM_NIGHT_TIME 10 //Note this variable is 2 bytes.
+#define EE_AUTODIM_DAY_BRIGHT 12
+#define EE_AUTODIM_NIGHT_BRIGHT 13
+#endif
 
 /*************************** FUNCTION PROTOTYPES */
 
@@ -180,6 +194,10 @@ void set_backlight(void);
 #ifdef AUTODIM
 void autoDim(uint8_t hour, uint8_t minute);
 void setBacklightAutoDim(void);
+
+#ifdef AUTODIM_EEPROM
+void init_autodim_eeprom(void);
+#endif
 #endif
 void print_timehour(uint8_t h, uint8_t inverted);
 void print_alarmhour(uint8_t h, uint8_t inverted);

@@ -228,6 +228,7 @@ void initanim(void) {
   stationLocation = oldStationLocation = 3;
   lastStationTime = time_s;
   redraw_station = 5;
+
 }
 
 //initialise the display. This function is called at least once, and may be called several times after.
