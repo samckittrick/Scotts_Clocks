@@ -1,6 +1,6 @@
 #define halt(x)  while (1)
 
-#define DEBUGGING 1
+#define DEBUGGING 0
 #define DEBUG(x)  if (DEBUGGING) { x; }
 #define DEBUGP(x) DEBUG(putstring_nl(x))
 
@@ -23,7 +23,7 @@
 #endif
 
 //AutoDST automatically changes your clock's time for DST. Uncomment to enable.
-#define AUTODST
+//#define AUTODST
 
 // how fast to proceed the animation, note that the redrawing
 // takes some time too so you dont want this too small or itll
