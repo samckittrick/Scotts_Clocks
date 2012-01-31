@@ -173,6 +173,10 @@ int main(void) {
   init_autodim_eeprom();
   #endif
   
+   #ifdef AUTODIM
+      autoDim(time_h, time_m);
+   #endif
+  
   #ifdef AUTODST
   init_autodst_eeprom();
   #endif //#ifdef AUTODST
@@ -188,6 +192,10 @@ int main(void) {
     //if(minute_changed)
       autodst(rule);
     #endif //#ifdef AUTODST
+    
+   #ifdef AUTODIM
+      autoDim(time_h, time_m);
+   #endif
 
     // check buttons to see if we have interaction stuff to deal with
 	if(just_pressed && alarming)

@@ -247,10 +247,6 @@ void initdisplay(uint8_t inverted) {
    glcdSetAddress(1, GLCD_TEXT_LINES-1);
    glcdPutStr("ISS", inverted);
    redraw_time = 1;
-   
-   #ifdef AUTODIM
-      autoDim(time_h, time_m);
-   #endif
 }
 
 //advance the animation by one step. This function is called from ratt.c every ANIM_TICK miliseconds.
@@ -326,10 +322,6 @@ void step(void) {
          lastStationTime = time_s; 
          redraw_station = 1;
       }
-
-      #ifdef AUTODIM
-         autoDim(time_h, time_m);
-      #endif
    }
    
    //if the alarm status has changed
