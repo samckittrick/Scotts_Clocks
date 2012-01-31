@@ -32,6 +32,9 @@ extern volatile uint8_t region;
 extern volatile uint8_t score_mode;
 extern volatile uint8_t baseInverted;
 extern volatile uint8_t minute_changed, hour_changed;
+#ifdef AUTODST
+extern volatile uint8_t autodst_isDST;
+#endif
 
 uint8_t hour12;
 uint8_t lastTimeFormat;
@@ -101,7 +104,7 @@ void encipher(void) {  // Using 32 rounds of XTea encryption as a PRNG.
   rval[0]=v0; rval[1]=v1;
 }
 
-void init_crand() {
+void init_crand(void) {
   uint32_t temp;
   key[0]=0x2DE9716E;  //Initial XTEA key. Grabbed from the first 16 bytes
   key[1]=0x993FDDD1;  //of grc.com/password.  1 in 2^128 chance of seeing
@@ -232,7 +235,7 @@ void initanim(void) {
 }
 
 //initialise the display. This function is called at least once, and may be called several times after.
-// It is possible that this function is called every ANIM_TICK miliseconds, but I am not sure yet.
+// This function is called once when the clock starts and then every time a menu is shown and cleared.
 void initdisplay(uint8_t inverted) {
    //clear the screen
    glcdFillRectangle(0,0,GLCD_XPIXELS, GLCD_YPIXELS, inverted);

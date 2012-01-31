@@ -19,8 +19,11 @@
 //         Before enabling it, ensure it does not conflict with any other memory usage.
 //Note: AutoDim will work without the eeprom usage. It just will not keep it's settings in the event of a reset.s
 #ifdef AUTODIM
-//#define AUTODIM_EEPROM
+#define AUTODIM_EEPROM
 #endif
+
+//AutoDST automatically changes your clock's time for DST. Uncomment to enable.
+#define AUTODST
 
 // how fast to proceed the animation, note that the redrawing
 // takes some time too so you dont want this too small or itll
@@ -169,6 +172,9 @@
 #define EE_AUTODIM_DAY_BRIGHT 12
 #define EE_AUTODIM_NIGHT_BRIGHT 13
 #endif
+#ifdef AUTODST
+#define EE_AUTODST 14
+#endif // #ifdef AUTODST
 
 /*************************** FUNCTION PROTOTYPES */
 
@@ -197,8 +203,15 @@ void setBacklightAutoDim(void);
 
 #ifdef AUTODIM_EEPROM
 void init_autodim_eeprom(void);
+void update_autodst_eeprom(uint8_t value);
+uint32_t secondsIntoYear(uint8_t day, uint8_t month, uint8_t year);
+uint32_t dstCalculate(uint8_t hour, uint8_t dotw, uint8_t n, uint8_t month, uint8_t year);
+void autodst(uint8_t* rule);
 #endif
 #endif
+#ifdef AUTODST
+void init_autodst_eeprom(void);
+#endif //#ifdef AUTODST
 void print_timehour(uint8_t h, uint8_t inverted);
 void print_alarmhour(uint8_t h, uint8_t inverted);
 void display_menu(void);
@@ -207,7 +220,7 @@ void setalarmstate(void);
 void beep(uint16_t freq, uint8_t duration);
 void printnumber(uint8_t n, uint8_t inverted);
 
-void init_crand();
+void init_crand(void);
 uint8_t dotw(uint8_t mon, uint8_t day, uint8_t yr);
 
 uint8_t i2bcd(uint8_t x);
