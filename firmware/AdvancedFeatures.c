@@ -22,7 +22,8 @@ extern volatile uint8_t screenmutex;
 extern volatile uint8_t just_pressed, pressed;
 extern volatile uint8_t timeoutcounter;
 extern volatile uint8_t time_format;
-extern volatile uint8_t time_h, time_m;
+extern volatile uint8_t time_h, time_m, time_s;
+extern volatile uint8_t date_d, date_m, date_y;
 
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -509,3 +510,117 @@ void init_autodim_eeprom()
 }
 #endif //#ifdef AUTODIM_EEPROM
 #endif //#ifdef AUTODIM
+
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++
+   Automatic Adjustment for DayLight Savings Time
+   
+   To Activate uncomment "#define AUTODST" in ratt.h
+   
+   Required resources:
+      .text: 
+      .data: 
++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+#ifdef AUTODST
+uint8_t autodst_isDST = 0;
+uint8_t autodst_changedToday = 0;
+void init_autodst_eeprom(void)
+{
+   uint8_t temp = eeprom_read_byte((uint8_t *)EE_AUTODST);
+   if((temp == 0)||(temp == 1))
+      autodst_isDST = temp;
+}
+
+void update_autodst_eeprom(uint8_t value)
+{
+   if(eeprom_read_byte((uint8_t *)EE_AUTODST) != value)
+   {
+      eeprom_write_byte((uint8_t *)EE_AUTODST, value);
+   }
+}
+
+uint32_t secondsIntoYear(uint8_t day, uint8_t month, uint8_t year)
+{
+   //how many days into the year we are
+   static const uint16_t monthDays[]={0,31,59,90,120,151,181,212,243,273,304,334};
+   uint32_t daysIntoYear = monthDays[month - 1] + day - 1;
+   
+   //is it a leap year?
+   if((year%4 == 0) && (month > 2))
+   {  
+      if(year%100 == 0)
+      {
+         if(year%400 == 0)
+         {
+            daysIntoYear++;
+         }
+      }
+      else
+      {
+         daysIntoYear++;
+      }
+   }
+   
+   //convert total to seconds
+   return daysIntoYear * 86400;
+}
+
+uint32_t dstCalculate(uint8_t hour, uint8_t dotw_target, uint8_t n, uint8_t month, uint8_t year)
+{
+   uint8_t dstDay;
+   uint8_t firstDow =  dotw(month, 1, year); //determine what the first day is
+   if(firstDow <= dotw_target) //if it's earlier than the target dow
+   {
+      //the first target dow is at this date
+      dstDay = dotw_target - firstDow + 1;
+   }
+   else //if its later than the target dow
+   {
+      //the first target dow is in the next week
+      dstDay = 8 - (firstDow - dotw_target);
+   }
+   //allow for nth occurance of target dow
+   dstDay += 7*(n-1);
+   glcdSetAddress(0,1);
+   printnumber(dstDay, 0);
+   
+   uint32_t dstSeconds = secondsIntoYear(dstDay, month, year); //where in the year is it?
+   return dstSeconds += 3600*hour; //consider the time not just the day
+}
+
+void autodst(uint8_t* rule)
+{
+   //reset autodst_changedToday
+   if((time_h == 00)&&(time_m == 00))
+      autodst_changedToday = 0;
+
+      
+   //calculate where in the year the dst days are
+   uint32_t startSeconds = dstCalculate(rule[0], rule[1], rule[2], rule[3], date_y);
+   uint32_t endSeconds = dstCalculate(rule[4], rule[5], rule[6], rule[7], date_y);
+   
+   //calculate how far into the year we are.
+   uint32_t nowSeconds = secondsIntoYear(date_d, date_m, date_y);
+   nowSeconds = nowSeconds + time_h*3600 + time_m*60 + time_s;
+   
+   if(((nowSeconds < startSeconds)||(nowSeconds >= endSeconds))&& autodst_isDST && !autodst_changedToday)
+   {
+      autodst_isDST = 0;
+      update_autodst_eeprom(0);
+      autodst_changedToday = 1;
+      uint8_t hour = time_h - 1;
+      writei2ctime(time_s, time_m, hour, 0, date_d, date_m, date_y);
+   }
+   
+   if(((nowSeconds >= startSeconds) && (nowSeconds < endSeconds)) && !autodst_isDST && !autodst_changedToday)
+   {
+      autodst_isDST = 1;
+      update_autodst_eeprom(1);
+      autodst_changedToday = 1;
+      uint8_t hour = time_h + 1;
+      writei2ctime(time_s, time_m, hour, 0, date_d, date_m, date_y);
+   }   
+   glcdSetAddress(0,0);
+   printnumber( autodst_isDST, 1);
+   printnumber(autodst_changedToday, 0);  
+}
+#endif //#ifdef AUTODST

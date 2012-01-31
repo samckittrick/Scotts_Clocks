@@ -29,6 +29,9 @@ extern volatile uint8_t time_format;
 extern volatile uint8_t region;
 extern volatile uint8_t score_mode;
 extern volatile uint8_t baseInverted;
+#ifdef AUTODST
+extern volatile uint8_t autodst_isDST;
+#endif
 
 //A couple variables to print some basic message on the screen as a place holder for a new animation.
 uint8_t xpos, ypos;
@@ -55,7 +58,7 @@ void encipher(void) {  // Using 32 rounds of XTea encryption as a PRNG.
   rval[0]=v0; rval[1]=v1;
 }
 
-void init_crand() {
+void init_crand(void) {
   uint32_t temp;
   key[0]=0x2DE9716E;  //Initial XTEA key. Grabbed from the first 16 bytes
   key[1]=0x993FDDD1;  //of grc.com/password.  1 in 2^128 chance of seeing
@@ -212,7 +215,7 @@ void draw(uint8_t inverted) {
       redraw_time = 0;
       glcdFillRectangle(0,0,GLCD_XPIXELS, GLCD_YPIXELS, inverted);
       glcdSetAddress(xpos, ypos);
-      glcdPutStr(msg, inverted);
+      //glcdPutStr(msg, inverted);
    }
 }
 

@@ -48,6 +48,12 @@ extern volatile uint8_t timeoutcounter;
 // How long we have been snoozing
 uint16_t snoozetimer = 0;
 
+//Rules for autodst
+//they are an array of 9 values
+//{start_hour24, start_dotw, start_n, start_month, end_hour24, end_dotw, end_n, end_month, offset}
+//uint8_t rule[] = {2, 0, 2, 3, 2, 0, 2, 11, 1};
+uint8_t rule[] = {2, 0, 2, 3, 2, 0, 1, 11, 1};
+
 SIGNAL(TIMER1_OVF_vect) {
   PIEZO_PORT ^= _BV(PIEZO);
 }
@@ -94,6 +100,9 @@ void init_eeprom(void) {	//Set eeprom to a default state.
     eeprom_write_byte((uint8_t *)EE_AUTODIM_DAY_BRIGHT, 11);
     eeprom_write_byte((uint8_t *)EE_AUTODIM_NIGHT_BRIGHT, 1);
     #endif
+    #ifdef AUTODST
+    eeprom_write_byte((uint8_t *)EE_AUTODST, 0);
+    #endif //#ifdef AUTODST
   }
 }
 
@@ -165,11 +174,21 @@ int main(void) {
   init_autodim_eeprom();
   #endif
   
+  #ifdef AUTODST
+  init_autodst_eeprom();
+  #endif //#ifdef AUTODST
+  
   initanim();
   initdisplay(inverted);
 
   while (1) {
     animticker = ANIMTICK_MS;
+    
+    //check daylight savings time
+    #ifdef AUTODST
+    //if(minute_changed)
+      autodst(rule);
+    #endif //#ifdef AUTODST
 
     // check buttons to see if we have interaction stuff to deal with
 	if(just_pressed && alarming)
