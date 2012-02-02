@@ -172,10 +172,6 @@ void initdisplay(uint8_t inverted) {
    glcdFillRectangle(0,0,GLCD_XPIXELS, GLCD_YPIXELS, inverted);
    glcdSetAddress(xpos, ypos);
    glcdPutStr(msg, inverted);
-   
-   #ifdef AUTODIM
-      autoDim(time_h, time_m);
-   #endif
 }
 
 //advance the animation by one step. This function is called from ratt.c every ANIM_TICK miliseconds.
@@ -199,10 +195,6 @@ void step(void) {
       {
          baseInverted = 0;
       }
-      
-      #ifdef AUTODIM
-         autoDim(time_h, time_m);
-      #endif
    }
 }
 

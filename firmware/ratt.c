@@ -184,6 +184,10 @@ int main(void) {
   while (1) {
     animticker = ANIMTICK_MS;
     
+   #ifdef AUTODIM
+      autoDim(time_h, time_m);
+   #endif
+   
     //check daylight savings time
     #ifdef AUTODST
     //if(minute_changed)
