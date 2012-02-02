@@ -581,7 +581,6 @@ uint32_t dstCalculate(uint8_t hour, uint8_t dotw_target, uint8_t n, uint8_t mont
    }
    //allow for nth occurance of target dow
    dstDay += 7*(n-1);
-   
    uint32_t dstSeconds = secondsIntoYear(dstDay, month, year); //where in the year is it?
    return dstSeconds += 3600*hour; //consider the time not just the day
 }

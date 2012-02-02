@@ -51,7 +51,7 @@ uint16_t snoozetimer = 0;
 //Rules for autodst
 //they are an array of 9 values
 //{start_hour24, start_dotw, start_n, start_month, end_hour24, end_dotw, end_n, end_month, offset}
-uint8_t rule[] = {2, 0, 2, 3, 2, 0, 2, 11, 1};
+uint8_t rule[] = {2, 0, 2, 3, 2, 0, 1, 11, 1};
 
 SIGNAL(TIMER1_OVF_vect) {
   PIEZO_PORT ^= _BV(PIEZO);

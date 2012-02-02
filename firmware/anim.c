@@ -81,6 +81,12 @@ uint8_t haveAlarmIcon;
 uint8_t spaceStation[] = { 0x00, 0x6C, 0x10, 0x6C, 0x00 };
 uint8_t stationLocation, oldStationLocation, lastStationTime;
 
+#ifdef AUTODST
+//DST Icon
+//11x7 icon. See images.ods
+uint8_t dstIcon[] = { 0xF8, 0x88, 0xF8, 0x00, 0x74, 0x54, 0x5C, 0x00, 0x20, 0x3F, 0x20 };
+#endif //#ifdef AUTODST
+
 //Is it time to redraw the screen?
 uint8_t redraw_time = 0;
 uint8_t redraw_station = 0;
@@ -487,6 +493,15 @@ void draw(uint8_t inverted) {
                if(alarmIcon[i] & ((uint8_t)1 << (7-j)))
                   glcdFillRectangle(43 + i, (GLCD_YPIXELS - 8) + j, 1, 1, !inverted);
       }
+      
+      #ifdef AUTODST
+      //draw dst icon
+      if(autodst_isDST)
+         for(uint8_t i = 0; i < 11; i++)
+            for(uint8_t j = 0; j < 8; j++)
+               if(dstIcon[i] & ((uint8_t)1 << (8 - j)))
+                  glcdFillRectangle(52 + i, (GLCD_YPIXELS - 9) + j, 1, 1, !inverted);
+      #endif //#ifdef AUTODST
       
       //write time
       glcdSetAddress(GLCD_XPIXELS - 37, GLCD_TEXT_LINES-1);
